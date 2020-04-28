@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on Spark</title>
-    <link>https://zisen123.github.io/posts/</link>
-    <description>Recent content in Posts on Spark</description>
+    <title>Tutorial on Spark</title>
+    <link>https://zisen123.github.io/tags/tutorial/</link>
+    <description>Recent content in Tutorial on Spark</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This is a customized copyright.</copyright>
     <lastBuildDate>Tue, 28 Apr 2020 18:32:01 +0800</lastBuildDate>
     
-	<atom:link href="https://zisen123.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://zisen123.github.io/tags/tutorial/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -39,17 +39,6 @@
 下面是使用降级工具降级的操作步骤: 本步骤图片截图自王晓峰的YouTube视频
  用HDMI视频数据线将N1盒子和显示器连接起来, 并使用鼠标和键盘将N1盒子连接到主路由的WiFi, 同时记下上面显示的IP地址.  点击四下固件版本, 屏幕上提示打开ADB
  打开电脑,运行降级工具包里的run.bat, 输入数字2并Enter,随后输入刚刚记下的IP地址,最后按任意键开始降级 注意此时电脑要保持联网状态,因为降级工具需要联网获取文件 . 降级成功后运行激活U盘启动工具包里的N1盒子激活U盘启动.bat,并输入刚刚记下的IP地址即可激活U盘启动.  将N1固件烧录至U盘并使用U盘启动openwrt 这里推荐使用balenaEtcher来进行烧录: 将U盘插入电脑, 选择下载好的固件和U盘, 最后Flash!</description>
-    </item>
-    
-    <item>
-      <title>Spark</title>
-      <link>https://zisen123.github.io/posts/spark/</link>
-      <pubDate>Tue, 28 Apr 2020 18:32:01 +0800</pubDate>
-      
-      <guid>https://zisen123.github.io/posts/spark/</guid>
-      <description>Spark means flames, beating heart, interesting soul, and the person you love.
-Étincelle signifie flammes, cœur frétillant, âme intéressante et la personne que vous aimez.
-火花は炎、心を打つこと、面白い魂、そしてあなたが愛する人を意味します。</description>
     </item>
     
   </channel>

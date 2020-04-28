@@ -13,6 +13,183 @@
     
     
         <item>
+        <title>N1盒子旁路由教程</title>
+        <link>https://zisen123.github.io/posts/n1%E7%9B%92%E5%AD%90%E6%97%81%E8%B7%AF%E7%94%B1%E6%95%99%E7%A8%8B/</link>
+        <pubDate>Tue, 28 Apr 2020 18:32:01 +0800</pubDate>
+        
+        <guid>https://zisen123.github.io/posts/n1%E7%9B%92%E5%AD%90%E6%97%81%E8%B7%AF%E7%94%B1%E6%95%99%E7%A8%8B/</guid>
+        <description>Spark https://zisen123.github.io/posts/n1%E7%9B%92%E5%AD%90%E6%97%81%E8%B7%AF%E7%94%B1%E6%95%99%E7%A8%8B/ -&lt;h1 id=&#34;n1盒子旁路由教程面向小白啰嗦版&#34;&gt;N1盒子旁路由教程面向小白啰嗦版&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;#%E5%8F%82%E8%80%83&#34;&gt;参考&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;#%E4%B8%BB%E8%A6%81%E7%9B%AE%E7%9A%84&#34;&gt;主要目的&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;#%E4%B8%80%E4%BA%9B%E9%9C%80%E8%A6%81%E7%94%A8%E5%88%B0%E7%9A%84%E4%B8%9C%E8%A5%BF&#34;&gt;一些需要用到的东西&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;#%E5%AF%B9N1%E7%9B%92%E5%AD%90%E8%BF%9B%E8%A1%8C%E9%99%8D%E7%BA%A7%E4%BB%A5%E5%8F%8A%E6%BF%80%E6%B4%BBU%E7%9B%98%E5%90%AF%E5%8A%A8&#34;&gt;对N1盒子进行降级以及激活U盘启动&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;#%E5%B0%86N1%E5%9B%BA%E4%BB%B6%E7%83%A7%E5%BD%95%E8%87%B3U%E7%9B%98%E5%B9%B6%E4%BD%BF%E7%94%A8U%E7%9B%98%E5%90%AF%E5%8A%A8openwrt&#34;&gt;将N1固件烧录至U盘并使用U盘启动openwrt&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;#%E5%B0%86%E5%9B%BA%E4%BB%B6%E5%88%B7%E5%85%A5N1%E7%9B%92%E5%AD%90%E7%9A%84emmc%E5%B9%B6%E6%9B%B4%E6%94%B9N1%E7%9B%92%E5%AD%90%E7%9A%84%E5%86%85%E7%BD%91IP&#34;&gt;将固件刷入N1盒子的emmc并更改N1盒子的内网IP&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;#%E5%A2%9E%E5%8A%A0WAN%E6%8E%A5%E5%8F%A3%E4%BB%A5%E5%8F%8A%E6%9B%B4%E6%94%B9LAN%E6%8E%A5%E5%8F%A3%E9%85%8D%E7%BD%AE&#34;&gt;增加WAN接口以及更改LAN接口配置&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;#%E5%AF%B9%E4%BA%8E%E9%9C%80%E8%A6%81N1%E6%97%81%E8%B7%AF%E7%94%B1%E8%BD%AC%E5%8F%91%E6%B5%81%E9%87%8F%E4%BB%A3%E7%90%86%E7%9A%84%E8%AE%BE%E5%A4%87%E8%BF%9B%E8%A1%8C%E8%AE%BE%E7%BD%AE&#34;&gt;对于需要N1旁路由转发流量代理的设备进行设置&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;#%E6%80%BB%E7%BB%93&#34;&gt;总结&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;#%E8%BD%AC%E8%BD%BD%E8%AF%B4%E6%98%8E&#34;&gt;转载说明&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;参考&#34;&gt;参考&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.youtube.com/watch?v=kUb1C_g18yU&#34;&gt;王晓峰录制的单臂路由教程视频&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;https://wxf2088.xyz/archives/321&#34;&gt;王晓峰部落阁上的单臂路由文字教程&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;https://www.right.com.cn/forum/?285101&#34;&gt;恩山论坛巨佬Flippy&lt;/a&gt;&lt;br&gt;
+&lt;a href=&#34;https://www.right.com.cn/forum/&#34;&gt;恩山无线论坛&lt;/a&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;主要目的&#34;&gt;主要目的&lt;/h2&gt;
+&lt;p&gt;在拥有一个&lt;strong&gt;主路由&lt;/strong&gt;的情况下将&lt;strong&gt;N1盒子&lt;/strong&gt;作为&lt;strong&gt;旁路由&lt;/strong&gt;, 再在手机电脑上设置网关让流量经过N1盒子转发,达到透明代理的效果.&lt;br&gt;
+经过测试,N1盒子可以运行v2ray转发500M宽带的流量, 更大的带宽尚未测试. &lt;em&gt;也可能是我不知道&lt;/em&gt;&lt;br&gt;
+此方案不需要对主路由器做任何改动, 不会影响到共用路由器的他人上网体验, 适合多人共用路由器时个人有代理转发需求.&lt;/p&gt;
+&lt;h2 id=&#34;一些需要用到的东西&#34;&gt;一些需要用到的东西&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;一台Windows电脑 &lt;em&gt;Mac用户可以使用虚拟机&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;一个大于或等于2G的U盘&lt;/li&gt;
+&lt;li&gt;一个N1盒子 &lt;em&gt;在拼多多可以买到二手货&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;一个正常运行的主路由器 &lt;em&gt;对配置没有要求,能满足当前带宽即可&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;一根网线 &lt;em&gt;用于连接主路由和N1盒子&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;del&gt;双公头数据线&lt;/del&gt; &lt;em&gt;Flippy最新的固件可以通过ssh连接后使用指令刷入emmc&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;显示器 &lt;em&gt;电视也可以&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;HDMI视频数据线&lt;/li&gt;
+&lt;li&gt;键盘和鼠标 &lt;em&gt;没有键盘也行&lt;/em&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://drive.google.com/open?id=1qrAh0RXZoCHy8OL3WG5FoIrVYsEBlWMY&#34;&gt;Flippy制作的N1盒子openwrt固件&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://drive.google.com/open?id=1fgb8f7epe-s4kJzKyQCa2Oes4vYkB1el&#34;&gt;N1盒子降级工具以及激活U盘启动工具&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;U盘烧录工具 &lt;em&gt;推荐使用&lt;a href=&#34;https://www.balena.io/etcher/&#34;&gt;balenaEtcher&lt;/a&gt;&lt;/em&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;对n1盒子进行降级以及激活u盘启动&#34;&gt;对N1盒子进行降级以及激活U盘启动&lt;/h2&gt;
+&lt;p&gt;大部分拿到手的N1盒子除非商家特别说明一般都只装了原版系统, 但是要激活从U盘启动的话就必须要把N1盒子降级到对应的版本.&lt;br&gt;
+下面是使用降级工具降级的操作步骤: &lt;em&gt;本步骤图片截图自王晓峰的YouTube视频&lt;/em&gt;&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;用HDMI视频数据线将N1盒子和显示器连接起来, 并使用鼠标和键盘将N1盒子连接到主路由的&lt;code&gt;WiFi&lt;/code&gt;, 同时记下上面显示的IP地址.
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d4637504f4bcb04dc0baf.png&#34; alt=&#34;N1盒子默认显示界面&#34;&gt;&lt;/li&gt;
+&lt;li&gt;点击四下固件版本, 屏幕上提示打开ADB&lt;br&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d46d1504f4bcb04dc8c59.png&#34; alt=&#34;打开ADB&#34;&gt;&lt;/li&gt;
+&lt;li&gt;打开电脑,运行降级工具包里的&lt;code&gt;run.bat&lt;/code&gt;, 输入数字&lt;!-- raw HTML omitted --&gt;2&lt;!-- raw HTML omitted --&gt;并&lt;!-- raw HTML omitted --&gt;Enter&lt;!-- raw HTML omitted --&gt;,随后输入刚刚记下的IP地址,最后按任意键开始降级 &lt;em&gt;注意此时电脑要保持联网状态,因为降级工具需要联网获取文件&lt;/em&gt; .&lt;/li&gt;
+&lt;li&gt;降级成功后运行激活U盘启动工具包里的&lt;code&gt;N1盒子激活U盘启动.bat&lt;/code&gt;,并输入刚刚记下的IP地址即可激活U盘启动.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;将n1固件烧录至u盘并使用u盘启动openwrt&#34;&gt;将N1固件烧录至U盘并使用U盘启动openwrt&lt;/h2&gt;
+&lt;p&gt;这里推荐使用&lt;a href=&#34;https://www.balena.io/etcher/&#34;&gt;balenaEtcher&lt;/a&gt;来进行烧录: 将U盘插入电脑, 选择下载好的固件和U盘, 最后&lt;code&gt;Flash!&lt;/code&gt;就完事了.
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d4c4e504f4bcb04e0d59b.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+烧录完成之后将U盘插入N1盒子, 接上电源即可在U盘启动openwrt系统&lt;/p&gt;
+&lt;h2 id=&#34;将固件刷入n1盒子的emmc并更改n1盒子的内网ip&#34;&gt;将固件刷入N1盒子的emmc并更改N1盒子的内网IP&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;将固件刷入N1盒子的emmc&lt;br&gt;
+我们想要N1盒子长久运行的话总不能一直插着个U盘吧, 既不安全也不稳定, 没准哪天U盘就崩掉了, 所以我们需要把固件刷到N1自带的8G存储里面, 感谢Flippy大神的固件让我们可以一键刷入而不像以前一样需要用到双公头数据线来刷机.&lt;br&gt;
+方法如下:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;N1盒子插上U盘, 接上显示器, 插上键盘后插电开机, 看见以下画面之后分行输入&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;cd /root
+./inst-to-emmc.sh
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&#34;https://pic.downk.cc/item/5e8d55ad504f4bcb04e78743.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+等待刷机完成即可进行下一步&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;更改N1盒子的内网IP&lt;br&gt;
+这里需要注意两个事情:&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;ul&gt;
+&lt;li&gt;如果你的光猫或者主路由的IP是&lt;code&gt;192.168.1.1&lt;/code&gt;, 那么需要更改N1盒子的IP或者更改光猫或主路由的IP以避免冲突.&lt;/li&gt;
+&lt;li&gt;如果你的主路由器的IP&lt;strong&gt;不是&lt;/strong&gt;&lt;code&gt;192.168.1.x&lt;/code&gt;, 那么你需要更改N1盒子的IP至主路由器的同一个网段. 例如你的主路由器的IP为&lt;code&gt;192.168.0.1&lt;/code&gt;, 那么N1盒子的IP就应该是&lt;code&gt;192.168.0.x&lt;/code&gt;并且&lt;code&gt;x!=1&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;如何确认我的光猫或者主路由的IP?&lt;br&gt;
+只需要在电脑浏览器的地址栏输入&lt;code&gt;192.168.1.1&lt;/code&gt;, 如果出现了登陆界面,那么说明你需要更改IP.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;有两种更改N1盒子IP的方法: &lt;em&gt;务必都看一看&lt;/em&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;直接连接键盘修改openwrt的网络配置文件&lt;/strong&gt; &lt;em&gt;该方法需要自备键盘&lt;/em&gt; &lt;em&gt;为了便于显示清晰我截的是&lt;code&gt;PowerShell&lt;/code&gt;的图&lt;/em&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;键盘连接N1, N1接上显示器, 插上已经刷入固件的U盘, 接上电源启动N1, 显示内容如图 &lt;em&gt;正常情况下会出现图中的LOGO&lt;/em&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d55ad504f4bcb04e78743.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+键盘输入&lt;code&gt;vi /etc/config/network&lt;/code&gt;后&lt;!-- raw HTML omitted --&gt;Enter&lt;!-- raw HTML omitted --&gt;, 如下图
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d5849504f4bcb04e9af22.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+将光标移动到&lt;code&gt;option ipaddr &#39;192.168.1.1&#39;&lt;/code&gt;, 按&lt;!-- raw HTML omitted --&gt;i&lt;!-- raw HTML omitted --&gt;进入编辑模式, 将&lt;code&gt;192.168.1.1&lt;/code&gt;更改为&lt;code&gt;192.168.x1.x2&lt;/code&gt;, &lt;code&gt;x1&lt;/code&gt;取决于你的主路由的IP, 假设主路由IP为&lt;code&gt;192.168.1.x&lt;/code&gt;, 那么&lt;code&gt;x1=1&lt;/code&gt;, &lt;code&gt;x2&lt;/code&gt;可以选择&lt;code&gt;254&lt;/code&gt;这个数字来避免大部分的冲突. &lt;em&gt;前提是你没有把其他设备IP设置为&lt;code&gt;192.168.x1.254&lt;/code&gt;&lt;/em&gt;&lt;br&gt;
+简单点说就是N1的IP必须要和主路由同一个网段并且与其他设备的IP不同.&lt;br&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d5b40504f4bcb04ec927d.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+&lt;em&gt;图中显示为&lt;code&gt;192.168.0.254&lt;/code&gt;是我修改后的结果,正常情况下会显示为&lt;code&gt;192.168.1.1&lt;/code&gt;&lt;/em&gt;&lt;br&gt;
+修改好之后按&lt;!-- raw HTML omitted --&gt;Esc&lt;!-- raw HTML omitted --&gt;退出编辑模式, 最后输入&lt;code&gt;:wq&lt;/code&gt;来保存并退出&lt;br&gt;
+这样就修改好了N1盒子的IP地址&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;将N1盒子通过网线或者WiFi直连电脑进行更改&lt;/strong&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;N1盒子从U盘启动之后一般会自动开启一个名为&lt;code&gt;OpenWrt&lt;/code&gt;的开放式WiFi, 电脑断开其他网络连接之后连接到这个WiFi, 没有WiFi的电脑可以用网线直连N1盒子和电脑.&lt;br&gt;
+连接上之后按下&lt;!-- raw HTML omitted --&gt;Win&lt;!-- raw HTML omitted --&gt;+&lt;!-- raw HTML omitted --&gt;x&lt;!-- raw HTML omitted --&gt;, 选择&lt;code&gt;Windows PowerShell&lt;/code&gt;, 输入&lt;code&gt;ssh root@192.168.1.1&lt;/code&gt;后&lt;!-- raw HTML omitted --&gt;Enter&lt;!-- raw HTML omitted --&gt;, 如图
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d5db2504f4bcb04ee79e5.png&#34; alt=&#34;&#34;&gt;
+接下来的步骤与上一个方法相同, 不再赘述.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;blockquote&gt;
+&lt;p&gt;如果电脑没有自带ssh的话可以用浏览器访问&lt;code&gt;192.168.1.1&lt;/code&gt;, 出现如下登陆界面, 输入默认密码&lt;code&gt;password&lt;/code&gt;&lt;br&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d611a504f4bcb04f15d93.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+登录后在左侧菜单栏里面找到&lt;code&gt;网络-接口&lt;/code&gt;, 对LAN进行编辑&lt;br&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d6153504f4bcb04f19f11.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+将红框内的IP改为&lt;code&gt;192.168.0.254&lt;/code&gt; &lt;em&gt;根据你的实际情况更改&lt;/em&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d61c8504f4bcb04f20f45.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;增加wan接口以及更改lan接口配置&#34;&gt;增加WAN接口以及更改LAN接口配置&lt;/h2&gt;
+&lt;p&gt;更改N1盒子的内网IP成功之后, 将N1盒子用网线连接到主路由, 浏览器访问&lt;code&gt;192.168.0.254&lt;/code&gt;, 输入默认密码&lt;code&gt;password&lt;/code&gt;后即可登录, 接下来就是增加WAN接口和修改LAN接口&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;增加WAN接口
+&lt;blockquote&gt;
+&lt;p&gt;首先来到&lt;code&gt;网络-接口&lt;/code&gt;,点击&lt;code&gt;添加新接口&lt;/code&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d70fc504f4bcb04009fda.png&#34; alt=&#34;&#34;&gt;
+如图进行设置
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d70fc504f4bcb04009fe1.png&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;li&gt;修改LAN接口
+&lt;blockquote&gt;
+&lt;p&gt;如图进行设置即可
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d730f504f4bcb0402af03.png&#34; alt=&#34;&#34;&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d730f504f4bcb0402af08.png&#34; alt=&#34;&#34;&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d730f504f4bcb0402af13.png&#34; alt=&#34;&#34;&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d730f504f4bcb0402af18.png&#34; alt=&#34;&#34;&gt;
+最后记得点击&lt;code&gt;保存并应用&lt;/code&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h2 id=&#34;对于需要n1旁路由转发流量代理的设备进行设置&#34;&gt;对于需要N1旁路由转发流量代理的设备进行设置&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;电脑
+&lt;blockquote&gt;
+&lt;p&gt;首先连接到主路由的网络, 打开&lt;code&gt;Control Panel\Network and Internet\Network Connections&lt;/code&gt;, 如图进行操作&lt;br&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d7a6f504f4bcb04096bb1.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d7a95504f4bcb04098eae.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+记住下面这张图里的&lt;code&gt;IPv4 Address&lt;/code&gt;&lt;br&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d7ae1504f4bcb0409da2a.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d7a95504f4bcb04098eb2.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+这里&lt;code&gt;IP Address&lt;/code&gt;里面填刚刚记下的&lt;code&gt;IPv4 Address&lt;/code&gt;&lt;br&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d7a95504f4bcb04098eb5.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+最后&lt;code&gt;OK&lt;/code&gt;即可生效&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;li&gt;手机 &lt;em&gt;这里我以我自己的vivo手机为例, 其他手机包括iPhone设置大同小异&lt;/em&gt;
+&lt;blockquote&gt;
+&lt;p&gt;点击进入WiFi详情页进行设置&lt;br&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d7caa504f4bcb040b6a3a.jpg&#34; alt=&#34;&#34;&gt;&lt;br&gt;
+和电脑上类似,先记下原来的&lt;code&gt;IP地址&lt;/code&gt;, 然后开启&lt;code&gt;静态IP&lt;/code&gt;, 将&lt;code&gt;网关&lt;/code&gt;改为&lt;code&gt;192.168.0.254&lt;/code&gt;&lt;br&gt;
+&lt;img src=&#34;https://pic.downk.cc/item/5e8d7d1a504f4bcb040bcab4.jpg&#34; alt=&#34;&#34;&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;总结&#34;&gt;总结&lt;/h2&gt;
+&lt;p&gt;本文从拿到N1开始进行降级, 激活U盘启动, 刷入emmc, 到更改N1盒子网络设置, 成功地实现了把设备流量转发给N1盒子处理, 再配合固件里面自带的插件即可实现透明代理上网, 如果出现了意料之外的问题, 欢迎提出issue讨论.&lt;/p&gt;
+&lt;h2 id=&#34;转载说明&#34;&gt;转载说明&lt;/h2&gt;
+&lt;p&gt;此文为Zisen原创, 虽有许多参考之处但都获得了原文作者的许可, 如需转载请注明出处和作者, 本文地址为https://github.com/zisen123/N1-box-bypass-router-tutorial/blob/master/N1-box-bypass-router-tutorial.md&lt;/p&gt;
+- https://zisen123.github.io/posts/n1%E7%9B%92%E5%AD%90%E6%97%81%E8%B7%AF%E7%94%B1%E6%95%99%E7%A8%8B/ - This is a customized copyright.</description>
+        </item>
+    
+    
+    
+        <item>
         <title>Spark</title>
         <link>https://zisen123.github.io/posts/spark/</link>
         <pubDate>Tue, 28 Apr 2020 18:32:01 +0800</pubDate>

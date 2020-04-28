@@ -3,6 +3,16 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://zisen123.github.io/categories/</loc>
+    <lastmod>2020-04-28T18:32:01+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://zisen123.github.io/posts/n1%E7%9B%92%E5%AD%90%E6%97%81%E8%B7%AF%E7%94%B1%E6%95%99%E7%A8%8B/</loc>
+    <lastmod>2020-04-28T18:32:01+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://zisen123.github.io/posts/</loc>
     <lastmod>2020-04-28T18:32:01+08:00</lastmod>
   </url>
@@ -18,11 +28,18 @@
   </url>
   
   <url>
-    <loc>https://zisen123.github.io/categories/</loc>
+    <loc>https://zisen123.github.io/tags/</loc>
+    <lastmod>2020-04-28T18:32:01+08:00</lastmod>
   </url>
   
   <url>
-    <loc>https://zisen123.github.io/tags/</loc>
+    <loc>https://zisen123.github.io/tags/tutorial/</loc>
+    <lastmod>2020-04-28T18:32:01+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://zisen123.github.io/categories/tutorial/</loc>
+    <lastmod>2020-04-28T18:32:01+08:00</lastmod>
   </url>
   
 </urlset>
