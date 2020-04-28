@@ -1,27 +1,27 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Spark</title>
-    <link>http://example.org/</link>
+    <link>https://zisen123.github.io/</link>
     <description>Recent content on Spark</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This is a customized copyright.</copyright>
     <lastBuildDate>Tue, 28 Apr 2020 18:32:01 +0800</lastBuildDate>
     
-        <atom:link href="http://example.org/index.xml" rel="self" type="application/rss+xml" />
+        <atom:link href="https://zisen123.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     
     
         <item>
         <title>Spark</title>
-        <link>http://example.org/posts/spark/</link>
+        <link>https://zisen123.github.io/posts/spark/</link>
         <pubDate>Tue, 28 Apr 2020 18:32:01 +0800</pubDate>
         
-        <guid>http://example.org/posts/spark/</guid>
-        <description>Spark http://example.org/posts/spark/ -&lt;!-- raw HTML omitted --&gt;
+        <guid>https://zisen123.github.io/posts/spark/</guid>
+        <description>Spark https://zisen123.github.io/posts/spark/ -&lt;!-- raw HTML omitted --&gt;
 &lt;!-- raw HTML omitted --&gt;
 &lt;!-- raw HTML omitted --&gt;
-- http://example.org/posts/spark/ - This is a customized copyright.</description>
+- https://zisen123.github.io/posts/spark/ - This is a customized copyright.</description>
         </item>
     
     
