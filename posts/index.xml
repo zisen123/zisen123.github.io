@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Posts on Spark</title>
-    <link>https://zisen123.github.io/posts/</link>
+    <link>https://github.zisen.online/posts/</link>
     <description>Recent content in Posts on Spark</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This is a customized copyright.</copyright>
     <lastBuildDate>Tue, 28 Apr 2020 18:32:01 +0800</lastBuildDate>
     
-	<atom:link href="https://zisen123.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://github.zisen.online/posts/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Spark</title>
-      <link>https://zisen123.github.io/posts/spark/</link>
+      <link>https://github.zisen.online/posts/spark/</link>
       <pubDate>Tue, 28 Apr 2020 18:32:01 +0800</pubDate>
       
-      <guid>https://zisen123.github.io/posts/spark/</guid>
+      <guid>https://github.zisen.online/posts/spark/</guid>
       <description>Spark means flames, beating heart, interesting soul, and the person you love.
 Étincelle signifie flammes, cœur frétillant, âme intéressante et la personne que vous aimez.
 火花は炎、心を打つこと、面白い魂、そしてあなたが愛する人を意味します。</description>
