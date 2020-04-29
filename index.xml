@@ -6,9 +6,27 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This is a customized copyright.</copyright>
-    <lastBuildDate>Wed, 29 Apr 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 29 Apr 2020 19:41:51 +0800</lastBuildDate>
     
         <atom:link href="https://zisen123.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
+        <item>
+        <title>Keep Your Ssh Online</title>
+        <link>https://zisen123.github.io/posts/keep-ssh-online/</link>
+        <pubDate>Wed, 29 Apr 2020 19:41:51 +0800</pubDate>
+        
+        <guid>https://zisen123.github.io/posts/keep-ssh-online/</guid>
+        <description>Spark https://zisen123.github.io/posts/keep-ssh-online/ -&lt;p&gt;參見: &lt;a href=&#34;https://blog.phpgao.com/keep_connect_ssh.html&#34;&gt;https://blog.phpgao.com/keep_connect_ssh.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;ssh連接到服務器, 修改&lt;code&gt;sshd_config&lt;/code&gt;文件&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;sudo vim /etc/ssh/sshd_config
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;加入以下兩行&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;ClientAliveInterval 30 #每30s發送一次心跳包給客戶端
+ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;修改本機&lt;code&gt;sshd_config&lt;/code&gt;文件, 方法和代碼同上.&lt;/p&gt;
+- https://zisen123.github.io/posts/keep-ssh-online/ - This is a customized copyright.</description>
+        </item>
     
     
     

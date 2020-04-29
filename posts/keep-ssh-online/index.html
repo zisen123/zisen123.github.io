@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html><head>
-	<meta name="generator" content="Hugo 0.69.1" />
-<title>Spark</title>
+<title>Keep Your Ssh Online</title>
 
 <meta charset="utf-8">
 <meta name="X-UA-Compatible" content="IE=edge">
 <meta name="google-site-verification" content="">
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
 <meta content="telephone=no" name="format-detection">
-<meta name="description" content="">
+<meta name="description" content="通過發送心跳包使ssh連接不自動中斷">
 <meta name="renderer" content="webkit">
 <meta name="theme-color" content="#ffffff">
 
@@ -45,15 +44,26 @@
 
 
 
-<style>
-  .toc{
-    display: none !important;
-  }
-</style>
+<script src="https://zisen123.github.io//js/toc.js"></script>
 
 
 
 
+
+<script type="text/javascript">
+$(
+  (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+
+      if (typeof LivereTower === 'function') { return; }
+
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+
+      e.parentNode.insertBefore(j, e);
+  })(document, 'script'));
+</script>
 
 
 
@@ -61,7 +71,7 @@
 </head><body>
     	<div id="app"><div ref="sideContainer" class="side-container">
     
-    <a class="a-block nav-head active" href="https://zisen123.github.io/">
+    <a class="a-block nav-head false" href="https://zisen123.github.io/">
     
         <div class="nav-title">
             Spark
@@ -79,9 +89,11 @@
             
             
             
+                
             
             
-            <a class="a-block nav-link-item false" href="/posts">
+            
+            <a class="a-block nav-link-item active" href="/posts">
                 Archive
             </a>
             
@@ -136,6 +148,11 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
 </div><div ref="extraContainer" class="extra-container">
     
     
+    <div class="toc animated-visibility" :class="{ invisible: scrollY <= 140 }">
+
+
+</div>
+    
     <div class="pagination">
         <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
             <i class="material-icons pagination-action-icon">
@@ -153,8 +170,6 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
         </a>
         
         
-        
-        
     </div>
 </div><div class="single-column-drawer-container" ref="drawer"
      v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
@@ -166,9 +181,11 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
                 
                 
                 
+                    
                 
                 
-                <a class="a-block drawer-menu-item false" href="/posts">
+                
+                <a class="a-block drawer-menu-item active" href="/posts">
                     Archive
                 </a>
                 
@@ -203,6 +220,11 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
                 </a>
                 
             
+            
+            <div class="toc">
+
+
+</div>
             
         </div>
     </div>
@@ -244,144 +266,99 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
     </a>
 </div>
             <div id="content">
-
 <div ref="streamContainer" class="stream-container">
-    <div class="post-list-container post-list-container-no-background">
-        
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
             
-            <a href="https://zisen123.github.io/posts/keep-ssh-online/" class="a-block">
-                <div class="post-item-wrapper">
-                    <div class="post-item post-item-no-divider">
-                        <div class="post-item-info-wrapper">
-                            <div class="post-item-title">
-                                Keep Your Ssh Online
-                            </div>
-                            <div class="post-item-summary">
-                                通過發送心跳包使ssh連接不自動中斷
-                            </div>
-                            <div class="post-item-meta">
-                                2020-04-29
-                            </div>
-                        </div>
+            
+            
+
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('/')">
+                <div class="post-title">
+                    Keep Your Ssh Online
+                    
+                    <div class="post-subtitle">
+                        通過發送心跳包使ssh連接不自動中斷
+                    </div>
+                    
+                    <div class="post-meta">
                         
+                        <time itemprop="datePublished">
+                            2020-04-29 19:41
+                        </time>
+                        
+
+                        
+                            <i class="material-icons" style="">folder</i>
+                                <a href="/categories/tutorial">Tutorial</a>
+                                &nbsp;
+                        
+
+                        
+                            <i class="material-icons" style="">label</i>
+                            
+                                <a href="/tags/tutorial">Tutorial</a>
+                                &nbsp;
+                            
+                                <a href="/tags/ssh">SSH</a>
+                                &nbsp;
+                            
                         
                     </div>
                 </div>
+            </div>
             
-        
-            
-            <a href="https://zisen123.github.io/posts/css-writing-mode/" class="a-block">
-                <div class="post-item-wrapper">
-                    <div class="post-item post-item-no-divider">
-                        <div class="post-item-info-wrapper">
-                            <div class="post-item-title">
-                                CSS文字豎排
-                            </div>
-                            <div class="post-item-summary">
-                                使用CSS的writing-mode屬性讓文字豎向排列
-                            </div>
-                            <div class="post-item-meta">
-                                2020-04-29
-                            </div>
-                        </div>
-                        
-                        
-                    </div>
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <p>參見: <a href="https://blog.phpgao.com/keep_connect_ssh.html">https://blog.phpgao.com/keep_connect_ssh.html</a></p>
+<p>ssh連接到服務器, 修改<code>sshd_config</code>文件</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">sudo vim /etc/ssh/sshd_config
+</code></pre></div><p>加入以下兩行</p>
+<pre><code>ClientAliveInterval 30 #每30s發送一次心跳包給客戶端
+ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接
+</code></pre><p>修改本機<code>sshd_config</code>文件, 方法和代碼同上.</p>
+
+                    
+                    <HR width="100%" id="EOF">
+                    <p style="color:#777;">Last modified on 2020-04-29</p>
+                    
                 </div>
+            </div>
             
-        
             
-            <a href="https://zisen123.github.io/posts/%E5%85%89%E7%94%B5%E6%95%88%E5%BA%94-%E6%AD%A6%E6%B1%89%E5%A4%A7%E5%AD%A6%E7%89%A9%E7%90%86%E7%A7%91%E5%AD%A6%E4%B8%8E%E6%8A%80%E6%9C%AF%E5%AD%A6%E9%99%A2-%E7%89%A9%E7%90%86%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/" class="a-block">
-                <div class="post-item-wrapper">
-                    <div class="post-item post-item-no-divider">
-                        <div class="post-item-info-wrapper">
-                            <div class="post-item-title">
-                                光電效應實驗報告
-                            </div>
-                            <div class="post-item-summary">
-                                武汉大学物理科学与技术学院 物理实验报告 光電效應
-                            </div>
-                            <div class="post-item-meta">
-                                2020-04-29
-                            </div>
-                        </div>
-                        
-                        
-                    </div>
-                </div>
-            
-        
-            
-            <a href="https://zisen123.github.io/posts/github-&#43;-hugo-my-blog/" class="a-block">
-                <div class="post-item-wrapper">
-                    <div class="post-item post-item-no-divider">
-                        <div class="post-item-info-wrapper">
-                            <div class="post-item-title">
-                                Github &#43; Hugo = My Blog
-                            </div>
-                            <div class="post-item-summary">
-                                
-                            </div>
-                            <div class="post-item-meta">
-                                2020-04-28
-                            </div>
-                        </div>
-                        
-                        
-                    </div>
-                </div>
-            
-        
-            
-            <a href="https://zisen123.github.io/posts/n1%E7%9B%92%E5%AD%90%E6%97%81%E8%B7%AF%E7%94%B1%E6%95%99%E7%A8%8B/" class="a-block">
-                <div class="post-item-wrapper">
-                    <div class="post-item post-item-no-divider">
-                        <div class="post-item-info-wrapper">
-                            <div class="post-item-title">
-                                N1盒子旁路由教程
-                            </div>
-                            <div class="post-item-summary">
-                                N1盒子旁路由教程面向小白啰嗦版
-                            </div>
-                            <div class="post-item-meta">
-                                2020-04-28
-                            </div>
-                        </div>
-                        
-                        
-                    </div>
-                </div>
-            
-        
-            
-            <a href="https://zisen123.github.io/posts/spark/" class="a-block">
-                <div class="post-item-wrapper">
-                    <div class="post-item post-item-no-divider">
-                        <div class="post-item-info-wrapper">
-                            <div class="post-item-title">
-                                Spark
-                            </div>
-                            <div class="post-item-summary">
-                                Spark Spark Spark
-                            </div>
-                            <div class="post-item-meta">
-                                2020-04-28
-                            </div>
-                        </div>
-                        
-                        
-                    </div>
-                </div>
-            
-        
-        </a>
-    </div>
+            <nav class="post-pagination">
+
+                
+                <a class="newer-posts">
+                    Next<br>No newer posts.
+                </a>
+                
+                
+                
+                <a class="older-posts" href="https://zisen123.github.io/posts/css-writing-mode/">
+                    Previous<br>CSS文字豎排
+                </a>
+                
+            </nav>
+            <div class="post-comment-wrapper">
+                
+
+
+
+
+
+
+<div id="lv-container" data-id="city" data-uid=MTAyMC80OTkwMi8yNjM5Mw&#61;&#61;>
+    <noscript>Please activate JavaScript to use Livere Comment.</noscript>
 </div>
 
             </div>
+        </div>
+    </div>
+</div>
 
-
-<div id="single-column-footer">
+            </div><div id="single-column-footer">
 Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://amazingrise.net">Rise</a>
 <br>
 Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>
