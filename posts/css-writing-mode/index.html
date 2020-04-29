@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html><head>
-	<meta name="generator" content="Hugo 0.69.1" />
-<title>Spark</title>
+<title>CSS文字豎排</title>
 
 <meta charset="utf-8">
 <meta name="X-UA-Compatible" content="IE=edge">
 <meta name="google-site-verification" content="">
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
 <meta content="telephone=no" name="format-detection">
-<meta name="description" content="">
+<meta name="description" content="使用CSS的writing-mode屬性讓文字豎向排列">
 <meta name="renderer" content="webkit">
 <meta name="theme-color" content="#ffffff">
 
@@ -42,15 +41,26 @@
 
 
 
-<style>
-  .toc{
-    display: none !important;
-  }
-</style>
+<script src="https://zisen123.github.io//js/toc.js"></script>
 
 
 
 
+
+<script type="text/javascript">
+$(
+  (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+
+      if (typeof LivereTower === 'function') { return; }
+
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+
+      e.parentNode.insertBefore(j, e);
+  })(document, 'script'));
+</script>
 
 
 
@@ -58,7 +68,7 @@
 </head><body>
     	<div id="app"><div ref="sideContainer" class="side-container">
     
-    <a class="a-block nav-head active" href="https://zisen123.github.io/">
+    <a class="a-block nav-head false" href="https://zisen123.github.io/">
     
         <div class="nav-title">
             Spark
@@ -76,9 +86,11 @@
             
             
             
+                
             
             
-            <a class="a-block nav-link-item false" href="/posts">
+            
+            <a class="a-block nav-link-item active" href="/posts">
                 Archive
             </a>
             
@@ -133,6 +145,11 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
 </div><div ref="extraContainer" class="extra-container">
     
     
+    <div class="toc animated-visibility" :class="{ invisible: scrollY <= 140 }">
+
+
+</div>
+    
     <div class="pagination">
         <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
             <i class="material-icons pagination-action-icon">
@@ -150,8 +167,6 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
         </a>
         
         
-        
-        
     </div>
 </div><div class="single-column-drawer-container" ref="drawer"
      v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
@@ -163,9 +178,11 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
                 
                 
                 
+                    
                 
                 
-                <a class="a-block drawer-menu-item false" href="/posts">
+                
+                <a class="a-block drawer-menu-item active" href="/posts">
                     Archive
                 </a>
                 
@@ -200,6 +217,11 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
                 </a>
                 
             
+            
+            <div class="toc">
+
+
+</div>
             
         </div>
     </div>
@@ -241,102 +263,120 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
     </a>
 </div>
             <div id="content">
-
 <div ref="streamContainer" class="stream-container">
-    <div class="post-list-container post-list-container-no-background">
-        
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
             
-            <a href="https://zisen123.github.io/posts/css-writing-mode/" class="a-block">
-                <div class="post-item-wrapper">
-                    <div class="post-item post-item-no-divider">
-                        <div class="post-item-info-wrapper">
-                            <div class="post-item-title">
-                                CSS文字豎排
-                            </div>
-                            <div class="post-item-summary">
-                                使用CSS的writing-mode屬性讓文字豎向排列
-                            </div>
-                            <div class="post-item-meta">
-                                2020-04-29
-                            </div>
-                        </div>
+            
+            
+
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('/')">
+                <div class="post-title">
+                    CSS文字豎排
+                    
+                    <div class="post-subtitle">
+                        使用CSS的writing-mode屬性讓文字豎向排列
+                    </div>
+                    
+                    <div class="post-meta">
                         
+                        <time itemprop="datePublished">
+                            2020-04-29 00:00
+                        </time>
+                        
+
+                        
+                            <i class="material-icons" style="">folder</i>
+                                <a href="/categories/notes">Notes</a>
+                                &nbsp;
+                        
+
+                        
+                            <i class="material-icons" style="">label</i>
+                            
+                                <a href="/tags/css">CSS</a>
+                                &nbsp;
+                            
                         
                     </div>
                 </div>
+            </div>
             
-        
-            
-            <a href="https://zisen123.github.io/posts/github-&#43;-hugo-my-blog/" class="a-block">
-                <div class="post-item-wrapper">
-                    <div class="post-item post-item-no-divider">
-                        <div class="post-item-info-wrapper">
-                            <div class="post-item-title">
-                                Github &#43; Hugo = My Blog
-                            </div>
-                            <div class="post-item-summary">
-                                
-                            </div>
-                            <div class="post-item-meta">
-                                2020-04-28
-                            </div>
-                        </div>
-                        
-                        
-                    </div>
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-html" data-lang="html"><span style="color:#75715e">&lt;!DOCTYPE html&gt;</span>
+&lt;<span style="color:#f92672">html</span>&gt;
+&lt;<span style="color:#f92672">head</span>&gt;
+&lt;<span style="color:#f92672">style</span>&gt; 
+<span style="color:#f92672">p</span>.<span style="color:#a6e22e">test1</span> {
+  <span style="color:#66d9ef">writing-mode</span>: <span style="color:#66d9ef">horizontal</span><span style="color:#f92672">-</span>tb; 
+}
+
+<span style="color:#f92672">p</span>.<span style="color:#a6e22e">test2</span> {
+  <span style="color:#66d9ef">writing-mode</span>: <span style="color:#66d9ef">vertical</span><span style="color:#f92672">-</span>rl; 
+}
+
+<span style="color:#f92672">span</span>.<span style="color:#a6e22e">test2</span> {
+  <span style="color:#66d9ef">writing-mode</span>: <span style="color:#66d9ef">vertical</span><span style="color:#f92672">-</span>rl; 
+}
+&lt;/<span style="color:#f92672">style</span>&gt;
+&lt;/<span style="color:#f92672">head</span>&gt;
+&lt;<span style="color:#f92672">body</span>&gt;
+
+&lt;<span style="color:#f92672">h1</span>&gt;The writing-mode Property&lt;/<span style="color:#f92672">h1</span>&gt;
+
+&lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;test1&#34;</span>&gt;Some text with default writing-mode.&lt;/<span style="color:#f92672">p</span>&gt;
+
+&lt;<span style="color:#f92672">p</span>&gt;Some text with a span element with a &lt;<span style="color:#f92672">span</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;test2&#34;</span>&gt;vertical-rl&lt;/<span style="color:#f92672">span</span>&gt; writing-mode.&lt;/<span style="color:#f92672">p</span>&gt;
+
+&lt;<span style="color:#f92672">p</span> <span style="color:#a6e22e">class</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;test2&#34;</span>&gt;Some text with writing-mode: vertical-rl.&lt;/<span style="color:#f92672">p</span>&gt;
+
+&lt;/<span style="color:#f92672">body</span>&gt;
+&lt;/<span style="color:#f92672">html</span>&gt;
+</code></pre></div><p><a href="https://www.w3schools.com/cssref/css3_pr_writing-mode.asp">link</a></p>
+<p><a href="https://www.w3schools.com/cssref/tryit.asp?filename=trycss3_writing-mode">demo</a></p>
+
+                    
+                    <HR width="100%" id="EOF">
+                    <p style="color:#777;">Last modified on 2020-04-29</p>
+                    
                 </div>
+            </div>
             
-        
             
-            <a href="https://zisen123.github.io/posts/n1%E7%9B%92%E5%AD%90%E6%97%81%E8%B7%AF%E7%94%B1%E6%95%99%E7%A8%8B/" class="a-block">
-                <div class="post-item-wrapper">
-                    <div class="post-item post-item-no-divider">
-                        <div class="post-item-info-wrapper">
-                            <div class="post-item-title">
-                                N1盒子旁路由教程
-                            </div>
-                            <div class="post-item-summary">
-                                N1盒子旁路由教程面向小白啰嗦版
-                            </div>
-                            <div class="post-item-meta">
-                                2020-04-28
-                            </div>
-                        </div>
-                        
-                        
-                    </div>
-                </div>
-            
-        
-            
-            <a href="https://zisen123.github.io/posts/spark/" class="a-block">
-                <div class="post-item-wrapper">
-                    <div class="post-item post-item-no-divider">
-                        <div class="post-item-info-wrapper">
-                            <div class="post-item-title">
-                                Spark
-                            </div>
-                            <div class="post-item-summary">
-                                Spark Spark Spark
-                            </div>
-                            <div class="post-item-meta">
-                                2020-04-28
-                            </div>
-                        </div>
-                        
-                        
-                    </div>
-                </div>
-            
-        
-        </a>
-    </div>
+            <nav class="post-pagination">
+
+                
+                <a class="newer-posts">
+                    Next<br>No newer posts.
+                </a>
+                
+                
+                
+                <a class="older-posts" href="https://zisen123.github.io/posts/github-&#43;-hugo-my-blog/">
+                    Previous<br>Github &#43; Hugo = My Blog
+                </a>
+                
+            </nav>
+            <div class="post-comment-wrapper">
+                
+
+
+
+
+
+
+<div id="lv-container" data-id="city" data-uid=MTAyMC80OTkwMi8yNjM5Mw&#61;&#61;>
+    <noscript>Please activate JavaScript to use Livere Comment.</noscript>
 </div>
 
             </div>
+        </div>
+    </div>
+</div>
 
-
-<div id="single-column-footer">
+            </div><div id="single-column-footer">
 Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://amazingrise.net">Rise</a>
 <br>
 Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>

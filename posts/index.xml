@@ -7,10 +7,29 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This is a customized copyright.</copyright>
-    <lastBuildDate>Tue, 28 Apr 2020 18:32:01 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 29 Apr 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://zisen123.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>CSS文字豎排</title>
+      <link>https://zisen123.github.io/posts/css-writing-mode/</link>
+      <pubDate>Wed, 29 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://zisen123.github.io/posts/css-writing-mode/</guid>
+      <description>&amp;lt;!DOCTYPE html&amp;gt; &amp;lt;html&amp;gt; &amp;lt;head&amp;gt; &amp;lt;style&amp;gt; p.test1 { writing-mode: horizontal-tb; } p.test2 { writing-mode: vertical-rl; } span.test2 { writing-mode: vertical-rl; } &amp;lt;/style&amp;gt; &amp;lt;/head&amp;gt; &amp;lt;body&amp;gt; &amp;lt;h1&amp;gt;The writing-mode Property&amp;lt;/h1&amp;gt; &amp;lt;p class=&amp;#34;test1&amp;#34;&amp;gt;Some text with default writing-mode.&amp;lt;/p&amp;gt; &amp;lt;p&amp;gt;Some text with a span element with a &amp;lt;span class=&amp;#34;test2&amp;#34;&amp;gt;vertical-rl&amp;lt;/span&amp;gt; writing-mode.&amp;lt;/p&amp;gt; &amp;lt;p class=&amp;#34;test2&amp;#34;&amp;gt;Some text with writing-mode: vertical-rl.&amp;lt;/p&amp;gt; &amp;lt;/body&amp;gt; &amp;lt;/html&amp;gt; link
+demo</description>
+    </item>
+    
+    <item>
+      <title>Github &#43; Hugo = My Blog</title>
+      <link>https://zisen123.github.io/posts/github-&#43;-hugo-my-blog/</link>
+      <pubDate>Tue, 28 Apr 2020 21:58:25 +0800</pubDate>
+      
+      <guid>https://zisen123.github.io/posts/github-&#43;-hugo-my-blog/</guid>
+      <description></description>
+    </item>
     
     <item>
       <title>N1盒子旁路由教程</title>

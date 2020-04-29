@@ -6,9 +6,62 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This is a customized copyright.</copyright>
-    <lastBuildDate>Tue, 28 Apr 2020 18:32:01 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 29 Apr 2020 00:00:00 +0000</lastBuildDate>
     
         <atom:link href="https://zisen123.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
+        <item>
+        <title>CSS文字豎排</title>
+        <link>https://zisen123.github.io/posts/css-writing-mode/</link>
+        <pubDate>Wed, 29 Apr 2020 00:00:00 +0000</pubDate>
+        
+        <guid>https://zisen123.github.io/posts/css-writing-mode/</guid>
+        <description>Spark https://zisen123.github.io/posts/css-writing-mode/ -&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-html&#34; data-lang=&#34;html&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!DOCTYPE html&amp;gt;&lt;/span&gt;
+&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;html&lt;/span&gt;&amp;gt;
+&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;head&lt;/span&gt;&amp;gt;
+&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;style&lt;/span&gt;&amp;gt; 
+&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;test1&lt;/span&gt; {
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;writing-mode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;horizontal&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;tb; 
+}
+
+&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;test2&lt;/span&gt; {
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;writing-mode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;vertical&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;rl; 
+}
+
+&lt;span style=&#34;color:#f92672&#34;&gt;span&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;test2&lt;/span&gt; {
+  &lt;span style=&#34;color:#66d9ef&#34;&gt;writing-mode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;vertical&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;rl; 
+}
+&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;style&lt;/span&gt;&amp;gt;
+&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;head&lt;/span&gt;&amp;gt;
+&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;body&lt;/span&gt;&amp;gt;
+
+&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;h1&lt;/span&gt;&amp;gt;The writing-mode Property&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;h1&lt;/span&gt;&amp;gt;
+
+&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;class&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;test1&amp;#34;&lt;/span&gt;&amp;gt;Some text with default writing-mode.&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
+
+&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;Some text with a span element with a &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;span&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;class&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;test2&amp;#34;&lt;/span&gt;&amp;gt;vertical-rl&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;span&lt;/span&gt;&amp;gt; writing-mode.&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
+
+&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;class&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;test2&amp;#34;&lt;/span&gt;&amp;gt;Some text with writing-mode: vertical-rl.&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
+
+&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;body&lt;/span&gt;&amp;gt;
+&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;html&lt;/span&gt;&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;a href=&#34;https://www.w3schools.com/cssref/css3_pr_writing-mode.asp&#34;&gt;link&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://www.w3schools.com/cssref/tryit.asp?filename=trycss3_writing-mode&#34;&gt;demo&lt;/a&gt;&lt;/p&gt;
+- https://zisen123.github.io/posts/css-writing-mode/ - This is a customized copyright.</description>
+        </item>
+    
+    
+    
+        <item>
+        <title>Github &#43; Hugo = My Blog</title>
+        <link>https://zisen123.github.io/posts/github-&#43;-hugo-my-blog/</link>
+        <pubDate>Tue, 28 Apr 2020 21:58:25 +0800</pubDate>
+        
+        <guid>https://zisen123.github.io/posts/github-&#43;-hugo-my-blog/</guid>
+        <description>Spark https://zisen123.github.io/posts/github-&#43;-hugo-my-blog/ -- https://zisen123.github.io/posts/github-&#43;-hugo-my-blog/ - This is a customized copyright.</description>
+        </item>
     
     
     
