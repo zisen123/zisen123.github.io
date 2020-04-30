@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This is a customized copyright.</copyright>
-    <lastBuildDate>Wed, 29 Apr 2020 19:41:51 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 01 May 2020 00:12:00 +0800</lastBuildDate>
     
 	<atom:link href="https://zisen123.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>colorful button</title>
+      <link>https://zisen123.github.io/posts/css_colorful_button/</link>
+      <pubDate>Fri, 01 May 2020 00:12:00 +0800</pubDate>
+      
+      <guid>https://zisen123.github.io/posts/css_colorful_button/</guid>
+      <description>&amp;lt;!DOCTYPE html&amp;gt; &amp;lt;!--from https://www.bilibili.com/video/BV1cK4y1k7qGs--&amp;gt; &amp;lt;html lang=&amp;#34;en&amp;#34;&amp;gt; &amp;lt;head&amp;gt; &amp;lt;meta charset=&amp;#34;UTF-8&amp;#34;&amp;gt; &amp;lt;meta name=&amp;#34;viewport&amp;#34; content=&amp;#34;width=divice-width, initial-scale=1.0&amp;#34;&amp;gt; &amp;lt;title&amp;gt;Colorful Button&amp;lt;/title&amp;gt; &amp;lt;/head&amp;gt; &amp;lt;body&amp;gt; &amp;lt;a href=&amp;#34;javascript:;&amp;#34;&amp;gt;Colorful Button&amp;lt;/a&amp;gt; &amp;lt;/body&amp;gt; &amp;lt;style&amp;gt; *{ margin: 0; padding: 0; } body{ background: #000; } a{ text-decoration: none;/*why set text-decoration as none?*/ position:absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);/*translate the button self*/ font-size: 24px; background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4); background-size: 400%; width: 400px; height: 100px; line-height: 100px;/*this means the height the text self */ text-align: center; color: #fff; text-transform: capitalize; border-radius: 50px;/*make the profile round*/ z-index: 1; } a::before{ content: &amp;#34;&amp;#34;; position: absolute; left: -5px; top: -5px; right: -5px; bottom: -5px; background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4); background-size: 400%; border-radius: 50px; filter: blur(20px); z-index: -1; } a:hover::before, a:hover{ animation: sun 8s infinite; } @keyframes sun{ 100%{ background-position: -400% 0; } } &amp;lt;/style&amp;gt; &amp;lt;/html&amp;gt; link </description>
+    </item>
     
     <item>
       <title>Keep Your ssh Online</title>
@@ -26,10 +35,10 @@ ClientAliveInterval 30 #每30s發送一次心跳包給客戶端 ClientAliveCount
     
     <item>
       <title>CSS文字豎排</title>
-      <link>https://zisen123.github.io/posts/css-writing-mode/</link>
+      <link>https://zisen123.github.io/posts/css_-writing-mode/</link>
       <pubDate>Wed, 29 Apr 2020 00:00:00 +0000</pubDate>
       
-      <guid>https://zisen123.github.io/posts/css-writing-mode/</guid>
+      <guid>https://zisen123.github.io/posts/css_-writing-mode/</guid>
       <description>&amp;lt;!DOCTYPE html&amp;gt; &amp;lt;html&amp;gt; &amp;lt;head&amp;gt; &amp;lt;style&amp;gt; p.test1 { writing-mode: horizontal-tb; } p.test2 { writing-mode: vertical-rl; } span.test2 { writing-mode: vertical-rl; } &amp;lt;/style&amp;gt; &amp;lt;/head&amp;gt; &amp;lt;body&amp;gt; &amp;lt;h1&amp;gt;The writing-mode Property&amp;lt;/h1&amp;gt; &amp;lt;p class=&amp;#34;test1&amp;#34;&amp;gt;Some text with default writing-mode.&amp;lt;/p&amp;gt; &amp;lt;p&amp;gt;Some text with a span element with a &amp;lt;span class=&amp;#34;test2&amp;#34;&amp;gt;vertical-rl&amp;lt;/span&amp;gt; writing-mode.&amp;lt;/p&amp;gt; &amp;lt;p class=&amp;#34;test2&amp;#34;&amp;gt;Some text with writing-mode: vertical-rl.&amp;lt;/p&amp;gt; &amp;lt;/body&amp;gt; &amp;lt;/html&amp;gt; link
 demo</description>
     </item>
