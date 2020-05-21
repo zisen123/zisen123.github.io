@@ -21,7 +21,7 @@
       <description>參見: https://blog.phpgao.com/keep_connect_ssh.html
 ssh連接到服務器, 修改sshd_config文件
 sudo vim /etc/ssh/sshd_config 加入以下兩行
-ClientAliveInterval 30 #每30s發送一次心跳包給客戶端 ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接 修改本機sshd_config文件, 方法和代碼同上.</description>
+ClientAliveInterval 30 #每30s發送一次心跳包給客戶端ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接修改本機sshd_config文件, 方法和代碼同上.</description>
     </item>
     
   </channel>

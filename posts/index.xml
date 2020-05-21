@@ -7,10 +7,23 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This is a customized copyright.</copyright>
-    <lastBuildDate>Thu, 07 May 2020 16:05:51 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 21 May 2020 22:24:57 +0800</lastBuildDate>
     
 	<atom:link href="https://zisen123.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>一道数学竞赛题</title>
+      <link>https://zisen123.github.io/posts/a-math-contest/</link>
+      <pubDate>Thu, 21 May 2020 22:24:57 +0800</pubDate>
+      
+      <guid>https://zisen123.github.io/posts/a-math-contest/</guid>
+      <description>最近在QQ群里面看到这样一道题目, 出题人说这是数学竞赛题, 和群里的各位大佬交流了一番, 总结了一下解法, 有兴趣的小伙伴不妨思考下题目的解法.
+ 设k为正整数, P为平面内一点, 平面内最少存在多少条直线才能使得至少k条直线与从P发射出的任何射线有交点?
+ 解法一  将题中的射线修改为共线的两条射线, 那么至少需要k+1条直线, 再将其中任意k条直线关于P点对称, 此时平面内共有2k+1条直线, 此时这两条射线中的任何一条都能满足题意.
+故至少需要2k+1条直线.
+ 解法二   </description>
+    </item>
     
     <item>
       <title>运动改变大脑-读后感</title>
@@ -42,7 +55,7 @@
       <description>參見: https://blog.phpgao.com/keep_connect_ssh.html
 ssh連接到服務器, 修改sshd_config文件
 sudo vim /etc/ssh/sshd_config 加入以下兩行
-ClientAliveInterval 30 #每30s發送一次心跳包給客戶端 ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接 修改本機sshd_config文件, 方法和代碼同上.</description>
+ClientAliveInterval 30 #每30s發送一次心跳包給客戶端ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接修改本機sshd_config文件, 方法和代碼同上.</description>
     </item>
     
     <item>

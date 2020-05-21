@@ -6,9 +6,34 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This is a customized copyright.</copyright>
-    <lastBuildDate>Thu, 07 May 2020 16:05:51 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 21 May 2020 22:24:57 +0800</lastBuildDate>
     
         <atom:link href="https://zisen123.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
+        <item>
+        <title>一道数学竞赛题</title>
+        <link>https://zisen123.github.io/posts/a-math-contest/</link>
+        <pubDate>Thu, 21 May 2020 22:24:57 +0800</pubDate>
+        
+        <guid>https://zisen123.github.io/posts/a-math-contest/</guid>
+        <description>Spark https://zisen123.github.io/posts/a-math-contest/ -&lt;p&gt;最近在QQ群里面看到这样一道题目, 出题人说这是数学竞赛题, 和群里的各位大佬交流了一番, 总结了一下解法, 有兴趣的小伙伴不妨思考下题目的解法.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;设k为正整数, P为平面内一点, 平面内最少存在多少条直线才能使得至少k条直线与从P发射出的任何射线有交点?&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;解法一&#34;&gt;解法一&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;将题中的射线修改为共线的两条射线, 那么至少需要k+1条直线, 再将其中任意k条直线关于P点对称, 此时平面内共有2k+1条直线, 此时这两条射线中的任何一条都能满足题意.&lt;br&gt;
+故至少需要2k+1条直线.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2 id=&#34;解法二&#34;&gt;解法二&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;img src=&#34;https://zisen-bucket.oss-cn-hongkong.aliyuncs.com/img/Cache_-6b09d664f2d9f5e7..jpg&#34; alt=&#34;Cache_-6b09d664f2d9f5e7.&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://zisen-bucket.oss-cn-hongkong.aliyuncs.com/img/Cache_39a04acb62105414..jpg&#34; alt=&#34;Cache_39a04acb62105414.&#34;&gt;&lt;/p&gt;
+&lt;/blockquote&gt;
+- https://zisen123.github.io/posts/a-math-contest/ - This is a customized copyright.</description>
+        </item>
     
     
     
@@ -243,7 +268,7 @@ ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接
 (2)中$U_0$为截止电压, 也就是抵消电子初始动能所需的电能, 即截止电压$U_0$与入射光频率$\nu$为线性关系, 由实验可以确定该函数的斜率, 进而求出普朗克常数$h$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;当频率一定时, 入射光强$P$越大, 光子数目越多, 产生的光电子数目也就越多, 饱和光电流强度就越大.
+&lt;p&gt;当频率一定时, 入射光强$P$越大, 光子数目越多, 产生的光电子数目也就越多, 饱和光电流强度就越大. 
 &lt;strong&gt;在同一频率下,饱和光电流强度$I_m$正比于入射光强$P$.&lt;/strong&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
