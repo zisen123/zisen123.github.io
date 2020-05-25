@@ -7,10 +7,19 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This is a customized copyright.</copyright>
-    <lastBuildDate>Thu, 21 May 2020 22:24:57 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 25 May 2020 12:29:07 +0800</lastBuildDate>
     
 	<atom:link href="https://zisen123.github.io/posts/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Minecraft Price List</title>
+      <link>https://zisen123.github.io/posts/minecraft-price-list/</link>
+      <pubDate>Mon, 25 May 2020 12:29:07 +0800</pubDate>
+      
+      <guid>https://zisen123.github.io/posts/minecraft-price-list/</guid>
+      <description>   Item Price Reprice(Recycle Price)     Crops     potato 26 31   wheat 20 24   carrot 22 26   beetroot 15 18   pumpkin 6 7   melon slice 4 5   dried kelp block 18 22   sweet berries 10 12   Animal Products     egg 16 20   raw beef 10 12   raw mutton 8 10   raw chicken 14 17   raw rabbit 4 5   raw porkchop 7 8   Aquatic Products     raw cod 15 18   raw salmon 13 16   tropical fish 1 2   pufferfish 1 2                                                                     </description>
+    </item>
     
     <item>
       <title>一道数学竞赛题</title>
