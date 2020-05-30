@@ -6,9 +6,131 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This is a customized copyright.</copyright>
-    <lastBuildDate>Mon, 25 May 2020 12:29:07 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 30 May 2020 12:07:09 +0800</lastBuildDate>
     
         <atom:link href="https://zisen123.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
+        <item>
+        <title>Minecraft Classification</title>
+        <link>https://zisen123.github.io/posts/minecraft-classification/</link>
+        <pubDate>Sat, 30 May 2020 12:07:09 +0800</pubDate>
+        
+        <guid>https://zisen123.github.io/posts/minecraft-classification/</guid>
+        <description>Spark https://zisen123.github.io/posts/minecraft-classification/ -&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align=&#34;center&#34;&gt;Category&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;Blocks/Items&lt;/th&gt;
+&lt;th align=&#34;center&#34;&gt;Examples&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Natural&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Stuff you&amp;rsquo;d find in the natural world&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Sapling&#34;&gt;Saplings&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Cacti&#34;&gt;Cacti&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Tall_Grass&#34;&gt;Tall Grass&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Leaves&#34;&gt;Leaves&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Wood&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Anything that has something to do with wood&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Log&#34;&gt;Logs&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Plank&#34;&gt;Planks&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Stick&#34;&gt;Sticks&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Fence&#34;&gt;Fences&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Boat&#34;&gt;Boats&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Sign&#34;&gt;Signs&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Mob Drops&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Anything a mob might have dropped that is not a food or a potion ingredient&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Rotten_Flesh&#34;&gt;Rotten Flesh&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Egg&#34;&gt;Eggs&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Ender_Pearl&#34;&gt;Ender Pearls&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Feather&#34;&gt;Feathers&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Food&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Any type of food&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Porkchop&#34;&gt;Porkchops&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Beef&#34;&gt;Beef&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Chicken&#34;&gt;Chicken&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Bread&#34;&gt;Bread&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Carrot&#34;&gt;Carrots&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Stone&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Anything that has something to do with stone&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Stone&#34;&gt;Stone&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Cobblestone&#34;&gt;Cobblestone&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Granite&#34;&gt;Granite&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Obsidian&#34;&gt;Obsidian&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Colorful&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Anything that has &lt;a href=&#34;https://minecraft.gamepedia.com/Dye&#34;&gt;dye&lt;/a&gt;-color variants&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Wool&#34;&gt;Wool&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Terracotta&#34;&gt;Terracotta&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Dye&#34;&gt;Dyes&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Glass&#34;&gt;Glass&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Concrete&#34;&gt;Concrete&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Combat&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Any kind of weapon&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Armor&#34;&gt;Armor&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Sword&#34;&gt;Swords&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Bow&#34;&gt;Bow&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/TNT&#34;&gt;TNT&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Trident&#34;&gt;Trident&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Minerals&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Anything mined out of underground&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Coal&#34;&gt;Coal&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Iron&#34;&gt;Iron&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Gold&#34;&gt;Gold&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Diamonds&#34;&gt;Diamonds&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Tools&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;All tools that you have but do not need at the moment&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Hoe&#34;&gt;Hoe&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Shovel&#34;&gt;Shovel&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Fishing_Rod&#34;&gt;Fishing Rod&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Mining&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;All tools that you need when going mining&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Torch&#34;&gt;Torches&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Pickaxe&#34;&gt;Pickaxes&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Bucket&#34;&gt;Buckets&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Brewing&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Anything that has something to do with brewing/potions&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Potion&#34;&gt;Potions&lt;/a&gt;, potion ingredients, &lt;a href=&#34;https://minecraft.gamepedia.com/Cauldron&#34;&gt;Cauldrons&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Brewing_Stand&#34;&gt;Brewing Stands&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Nether&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;All blocks and items pertaining to the &lt;a href=&#34;https://minecraft.gamepedia.com/Nether&#34;&gt;Nether&lt;/a&gt; dimension, unless used for potions, in which those items would be in another category&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Netherrack&#34;&gt;Netherrack&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Nether_Bricks&#34;&gt;Nether Bricks&lt;/a&gt;, Nether Brick Stairs and Slabs, &lt;a href=&#34;https://minecraft.gamepedia.com/Gold_Nugget&#34;&gt;Gold Nuggets&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;End&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;All blocks and items pertaining to the &lt;a href=&#34;https://minecraft.gamepedia.com/End&#34;&gt;End&lt;/a&gt; dimension&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/End_Stone&#34;&gt;End Stone&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Chorus_Plant&#34;&gt;Chorus Plants&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Shulker_Box&#34;&gt;Shulker Boxes&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Mechanism&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Anything that has something to do with redstone&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Redstone&#34;&gt;Redstone&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Redstone_Torch&#34;&gt;Redstone Torches&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Redstone_Repeater&#34;&gt;Redstone Repeaters&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Piston&#34;&gt;Piston&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Miscellaneous&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;All other things that do not fit into any of the other categories&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Book&#34;&gt;Books&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Book_and_Quill&#34;&gt;Book and Quill&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Magic Items&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Items enchanted&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Enchanted_Book&#34;&gt;Enchanted Books&lt;/a&gt; for example.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Mass Junk&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;After a while, many players will accumulate several double chests each of other things&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Dirt&#34;&gt;Dirt&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Gravel&#34;&gt;Gravel&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Sand&#34;&gt;Sand&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Other Junk&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Stuff you will rarely need&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Damaged Armor, Tools, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Trophy Items&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;Items that are hard to obtain, rare items&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Dragon_Egg&#34;&gt;Dragon Egg&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Nether_Star&#34;&gt;Nether Star&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Heart_of_the_Sea&#34;&gt;Heart of the Sea&lt;/a&gt;, etc.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Shared Stash&lt;/strong&gt;&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;You only need this chest if you are doing this on a multiplayer server where you are bunking with friends. This way, they will know if it is okay to borrow some dirt, or if all of your stuff has an invisible “&lt;em&gt;HANDS OFF!&lt;/em&gt;” sign on it.&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+- https://zisen123.github.io/posts/minecraft-classification/ - This is a customized copyright.</description>
+        </item>
     
     
     
