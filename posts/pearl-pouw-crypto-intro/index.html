@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html><head>
+<title>Pearl (PRL) 原理科普：AI 算力怎么变成加密货币？</title>
+
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="google-site-verification" content="">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<meta content="telephone=no" name="format-detection">
+<meta name="description" content="从零理解 Pearl 这个 Proof-of-Useful-Work 区块链——它如何把比特币的「无意义算题」换成 GPU 原生矩阵乘法，让挖矿变成 AI 计算的副产品，以及普通散户怎么参与。">
+<meta name="renderer" content="webkit">
+<meta name="theme-color" content="#ffffff">
+
+
+
+
+<script src="/vendor/js/jquery.min.js" ></script>
+<script src="/vendor/js/popper.min.js" ></script>
+<script src="/vendor/js/bootstrap.min.js" ></script>
+<script src="/vendor/js/smooth-scroll.polyfills.min.js" ></script>
+<link type="text/css" rel="stylesheet" href="/vendor/css/bootstrap.min.css">
+<script src="/vendor/js/vue.min.js" ></script>
+
+
+<link rel="icon" href="https://pic.downk.cc/item/5ea95577c2a9a83be53caa55.png">
+
+
+
+
+<link rel="stylesheet" href="https://zisen123.github.io/scss/journal.min.7b955631a82546d0141c189774ddccd95e674404ce134994d51f250cbf3eb5fa.css" integrity="sha256-e5VWMaglRtAUHBiXdN3M2V5nRATOE0mU1R8lDL8&#43;tfo=" media="screen">
+
+
+
+<link rel="stylesheet" href="https://zisen123.github.io/scss/dark-mode.min.0f9b568525dc2b5e89835cb5bdd60f6346d5dd09f9cac1cd28a61e41970ad627.css" integrity="sha256-D5tWhSXcK16Jg1y1vdYPY0bV3Qn5ysHNKKYeQZcK1ic=" media="screen">
+
+
+<script src="https://zisen123.github.io//js/loadCSS.js"></script>
+<script>
+  loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Noto+Serif+SC|Material+Icons");
+</script>
+
+<script src="https://zisen123.github.io//js/table.js"></script>
+
+
+  <script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  },
+  svg: {
+    fontCache: 'global'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+code.has-jax {
+  font: inherit;
+  font-size: 100%;
+  background: inherit;
+  border: inherit;
+  color: #515151;
+}
+</style>
+
+
+
+
+<script src="https://zisen123.github.io//js/toc.js"></script>
+
+
+
+
+
+
+
+<style>
+ 
+:not(pre) > code {
+  color: #c7254e !important;
+  background-color: #f9f2f4 !important;
+  border-radius: 4px;
+  padding: 2px 4px !important;
+  font-size: 90% !important;
+}
+
+ 
+pre code {
+  color: inherit !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+}
+
+ 
+pre, pre code, pre span {
+  color: rgba(255, 255, 255, 0.9);
+}
+</style>
+</head>
+<body>
+    	<div id="app"><div ref="sideContainer" class="side-container">
+    
+    <a class="a-block nav-head false" href="https://zisen123.github.io/">
+    
+        <div class="nav-title">
+            Spark
+        </div>
+        
+        <div class="nav-subtitle">
+            Themed by Diary.
+        </div>
+        
+    </a>
+
+    <div class="nav-link-list">
+        
+        
+            
+            
+            
+                
+            
+            
+            
+            <a class="a-block nav-link-item active" href="/posts">
+                Archive
+            </a>
+            
+        
+            
+            
+            
+            
+            
+            <a class="a-block nav-link-item false" href="/categories">
+                Categories
+            </a>
+            
+        
+            
+            
+            
+            
+            
+            <a class="a-block nav-link-item false" href="/tags">
+                Tags
+            </a>
+            
+        
+            
+            
+            
+            
+            
+            <a class="a-block nav-link-item false" href="/index.xml">
+                RSS Feed
+            </a>
+            
+        
+    </div>
+
+    
+
+    <div class="nav-footer">
+        
+Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://amazingrise.net">Rise</a>
+<br>
+Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>
+<br>
+
+&copy;
+	
+	This is a customized copyright.
+	
+    </div>
+    
+</div><div ref="extraContainer" class="extra-container">
+    
+    
+    <div class="toc animated-visibility" :class="{ invisible: scrollY <= 140 }">
+
+
+	<div class="toc-content">
+	
+		
+		
+		
+		<center>- CATALOG -</center>
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#1-pearl-%e5%92%8c%e6%af%94%e7%89%b9%e5%b8%81%e5%88%b0%e5%ba%95%e5%b7%ae%e5%9c%a8%e5%93%aa" v-on:click="closeDrawer" id="1-pearl-和比特币到底差在哪-nav">
+										 1. Pearl 和比特币，到底差在哪？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#2-%e5%b7%a5%e4%bd%9c%e9%87%8f%e6%98%af%e6%80%8e%e4%b9%88%e8%af%81%e6%98%8e%e7%9a%84" v-on:click="closeDrawer" id="2-工作量是怎么证明的-nav">
+										 2. 工作量是怎么证明的？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#21-%e4%b8%8d%e8%83%bd%e7%9b%b4%e6%8e%a5%e4%b9%98%e5%ae%8c%e8%af%b4%e6%88%91%e7%ae%97%e5%ae%8c%e4%ba%86" v-on:click="closeDrawer" id="21-不能直接乘完说我算完了-nav">
+										 2.1 不能直接乘完说「我算完了」
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#22-%e5%8a%a0%e5%99%aa%e5%a3%b0%e9%98%b2%e6%ad%a2%e4%bd%9c%e5%bc%8a" v-on:click="closeDrawer" id="22-加噪声防止作弊-nav">
+										 2.2 加噪声：防止作弊
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#23-%e5%88%86%e5%9d%97--%e5%93%88%e5%b8%8c%e6%8a%bd%e6%9f%a5" v-on:click="closeDrawer" id="23-分块--哈希抽查-nav">
+										 2.3 分块 &#43; 哈希抽查
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#24-zksnark%e8%bf%9e%e5%8e%9f%e5%a7%8b%e6%95%b0%e6%8d%ae%e9%83%bd%e4%b8%8d%e6%9a%b4%e9%9c%b2" v-on:click="closeDrawer" id="24-zksnark连原始数据都不暴露-nav">
+										 2.4 zkSNARK：连原始数据都不暴露
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#3-%e6%9c%89%e7%94%a8%e8%ae%a1%e7%ae%97%e7%9a%84%e7%bb%93%e6%9e%9c%e7%bb%99%e8%b0%81%e4%ba%86" v-on:click="closeDrawer" id="3-有用计算的结果给谁了-nav">
+										 3. 有用计算的结果给谁了？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#4-%e9%82%a3%e5%b8%81%e4%b8%ba%e4%bb%80%e4%b9%88%e8%83%bd%e5%8d%96%e9%92%b1ai-%e7%bb%93%e6%9e%9c%e5%8f%88%e6%b2%a1%e7%bb%99%e5%b8%81%e6%8c%81%e6%9c%89%e4%ba%ba" v-on:click="closeDrawer" id="4-那币为什么能卖钱ai-结果又没给币持有人-nav">
+										 4. 那币为什么能卖钱？AI 结果又没给币持有人。
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#5-%e7%9b%ae%e5%89%8d%e6%9c%89%e4%ba%ba%e7%94%a8%e8%bf%99%e4%b8%aa%e7%bd%91%e7%bb%9c%e8%b7%91-ai-%e5%90%97" v-on:click="closeDrawer" id="5-目前有人用这个网络跑-ai-吗-nav">
+										 5. 目前有人用这个网络跑 AI 吗？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#6-rtx-5090-%e8%83%bd%e6%8c%96%e5%90%97%e6%94%b6%e7%9b%8a%e6%80%8e%e6%a0%b7" v-on:click="closeDrawer" id="6-rtx-5090-能挖吗收益怎样-nav">
+										 6. RTX 5090 能挖吗？收益怎样？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#7-%e6%80%bb%e9%87%8f%e6%9c%89%e4%b8%8a%e9%99%90%e5%90%97" v-on:click="closeDrawer" id="7-总量有上限吗-nav">
+										 7. 总量有上限吗？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#8-%e6%88%91%e8%83%bd%e8%be%b9%e8%b7%91-ai-%e6%a8%a1%e5%9e%8b%e8%be%b9%e6%8c%96%e7%9f%bf%e5%90%97" v-on:click="closeDrawer" id="8-我能边跑-ai-模型边挖矿吗-nav">
+										 8. 我能边跑 AI 模型边挖矿吗？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#9-%e6%80%8e%e4%b9%88%e5%bc%80%e5%a7%8b%e6%8c%96" v-on:click="closeDrawer" id="9-怎么开始挖-nav">
+										 9. 怎么开始挖？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#10-%e6%80%bb%e7%bb%93%e5%80%bc%e5%be%97%e6%8c%96%e5%90%97" v-on:click="closeDrawer" id="10-总结值得挖吗-nav">
+										 10. 总结：值得挖吗？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+	</div>
+
+</div>
+    
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+        
+        <a class="pagination-action" v-on:click="toggleDarkMode">
+            <i class="material-icons pagination-action-icon" v-if="isDarkMode">
+                brightness_4
+            </i>
+            <i class="material-icons pagination-action-icon" v-else="isDarkMode">
+                brightness_7
+            </i>
+        </a>
+        
+        
+    </div>
+</div>
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            
+            
+            
+                
+                
+                
+                    
+                
+                
+                
+                <a class="a-block drawer-menu-item active" href="/posts">
+                    Archive
+                </a>
+                
+            
+                
+                
+                
+                
+                
+                <a class="a-block drawer-menu-item false" href="/categories">
+                    Categories
+                </a>
+                
+            
+                
+                
+                
+                
+                
+                <a class="a-block drawer-menu-item false" href="/tags">
+                    Tags
+                </a>
+                
+            
+                
+                
+                
+                
+                
+                <a class="a-block drawer-menu-item false" href="/index.xml">
+                    RSS Feed
+                </a>
+                
+            
+            
+            <div class="toc">
+
+
+	<div class="toc-content">
+	
+		
+		
+		
+		<center>- CATALOG -</center>
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#1-pearl-%e5%92%8c%e6%af%94%e7%89%b9%e5%b8%81%e5%88%b0%e5%ba%95%e5%b7%ae%e5%9c%a8%e5%93%aa" v-on:click="closeDrawer" id="1-pearl-和比特币到底差在哪-nav">
+										 1. Pearl 和比特币，到底差在哪？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#2-%e5%b7%a5%e4%bd%9c%e9%87%8f%e6%98%af%e6%80%8e%e4%b9%88%e8%af%81%e6%98%8e%e7%9a%84" v-on:click="closeDrawer" id="2-工作量是怎么证明的-nav">
+										 2. 工作量是怎么证明的？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#21-%e4%b8%8d%e8%83%bd%e7%9b%b4%e6%8e%a5%e4%b9%98%e5%ae%8c%e8%af%b4%e6%88%91%e7%ae%97%e5%ae%8c%e4%ba%86" v-on:click="closeDrawer" id="21-不能直接乘完说我算完了-nav">
+										 2.1 不能直接乘完说「我算完了」
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#22-%e5%8a%a0%e5%99%aa%e5%a3%b0%e9%98%b2%e6%ad%a2%e4%bd%9c%e5%bc%8a" v-on:click="closeDrawer" id="22-加噪声防止作弊-nav">
+										 2.2 加噪声：防止作弊
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#23-%e5%88%86%e5%9d%97--%e5%93%88%e5%b8%8c%e6%8a%bd%e6%9f%a5" v-on:click="closeDrawer" id="23-分块--哈希抽查-nav">
+										 2.3 分块 &#43; 哈希抽查
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#24-zksnark%e8%bf%9e%e5%8e%9f%e5%a7%8b%e6%95%b0%e6%8d%ae%e9%83%bd%e4%b8%8d%e6%9a%b4%e9%9c%b2" v-on:click="closeDrawer" id="24-zksnark连原始数据都不暴露-nav">
+										 2.4 zkSNARK：连原始数据都不暴露
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#3-%e6%9c%89%e7%94%a8%e8%ae%a1%e7%ae%97%e7%9a%84%e7%bb%93%e6%9e%9c%e7%bb%99%e8%b0%81%e4%ba%86" v-on:click="closeDrawer" id="3-有用计算的结果给谁了-nav">
+										 3. 有用计算的结果给谁了？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#4-%e9%82%a3%e5%b8%81%e4%b8%ba%e4%bb%80%e4%b9%88%e8%83%bd%e5%8d%96%e9%92%b1ai-%e7%bb%93%e6%9e%9c%e5%8f%88%e6%b2%a1%e7%bb%99%e5%b8%81%e6%8c%81%e6%9c%89%e4%ba%ba" v-on:click="closeDrawer" id="4-那币为什么能卖钱ai-结果又没给币持有人-nav">
+										 4. 那币为什么能卖钱？AI 结果又没给币持有人。
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#5-%e7%9b%ae%e5%89%8d%e6%9c%89%e4%ba%ba%e7%94%a8%e8%bf%99%e4%b8%aa%e7%bd%91%e7%bb%9c%e8%b7%91-ai-%e5%90%97" v-on:click="closeDrawer" id="5-目前有人用这个网络跑-ai-吗-nav">
+										 5. 目前有人用这个网络跑 AI 吗？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#6-rtx-5090-%e8%83%bd%e6%8c%96%e5%90%97%e6%94%b6%e7%9b%8a%e6%80%8e%e6%a0%b7" v-on:click="closeDrawer" id="6-rtx-5090-能挖吗收益怎样-nav">
+										 6. RTX 5090 能挖吗？收益怎样？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#7-%e6%80%bb%e9%87%8f%e6%9c%89%e4%b8%8a%e9%99%90%e5%90%97" v-on:click="closeDrawer" id="7-总量有上限吗-nav">
+										 7. 总量有上限吗？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#8-%e6%88%91%e8%83%bd%e8%be%b9%e8%b7%91-ai-%e6%a8%a1%e5%9e%8b%e8%be%b9%e6%8c%96%e7%9f%bf%e5%90%97" v-on:click="closeDrawer" id="8-我能边跑-ai-模型边挖矿吗-nav">
+										 8. 我能边跑 AI 模型边挖矿吗？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#9-%e6%80%8e%e4%b9%88%e5%bc%80%e5%a7%8b%e6%8c%96" v-on:click="closeDrawer" id="9-怎么开始挖-nav">
+										 9. 怎么开始挖？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#10-%e6%80%bb%e7%bb%93%e5%80%bc%e5%be%97%e6%8c%96%e5%90%97" v-on:click="closeDrawer" id="10-总结值得挖吗-nav">
+										 10. 总结：值得挖吗？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+	</div>
+
+</div>
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="https://zisen123.github.io/">
+            Spark
+        </a>
+        
+        <button type="button" class="nav-darkmode-toggle" v-on:click="toggleDarkMode">
+            <i class="material-icons" v-if="isDarkMode">
+                brightness_4
+            </i>
+            <i class="material-icons" v-else="isDarkMode">
+                brightness_7
+            </i>
+        </button>
+        
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="https://zisen123.github.io/">
+        <div class="single-column-header-title">Spark</div>
+        
+        <div class="single-column-header-subtitle">Themed by Diary.</div>
+        
+
+    </a>
+</div>
+            <div id="content">
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            
+            
+            
+
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('https://zisen123.github.io/')">
+                <div class="post-title">
+                    Pearl (PRL) 原理科普：AI 算力怎么变成加密货币？
+                    
+                    <div class="post-subtitle">
+                        从零理解 Pearl 这个 Proof-of-Useful-Work 区块链——它如何把比特币的「无意义算题」换成 GPU 原生矩阵乘法，让挖矿变成 AI 计算的副产品，以及普通散户怎么参与。
+                    </div>
+                    
+                    <div class="post-meta">
+                        
+                        <time itemprop="datePublished">
+                            2026-05-30 19:00
+                        </time>
+                        
+
+                        
+
+                        
+                            <i class="material-icons" style="">label</i>
+                            
+                                <a href="/tags/crypto">crypto</a>
+                                &nbsp;
+                            
+                                <a href="/tags/mining">mining</a>
+                                &nbsp;
+                            
+                                <a href="/tags/pearl">pearl</a>
+                                &nbsp;
+                            
+                                <a href="/tags/prl">prl</a>
+                                &nbsp;
+                            
+                                <a href="/tags/ai">AI</a>
+                                &nbsp;
+                            
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <p>本文用 Q&amp;A 形式，尽量用大白话解释 Pearl 是什么、为什么能挖、以及散户能不能玩。</p>
+<hr>
+<h2 id="1-pearl-和比特币到底差在哪">1. Pearl 和比特币，到底差在哪？</h2>
+<table>
+	<thead>
+			<tr>
+					<th></th>
+					<th>比特币</th>
+					<th>Pearl</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>挖矿算的任务</td>
+					<td>随机 SHA-256 哈希，无意义</td>
+					<td>INT8 矩阵乘法（AI 训练/推理的核心操作）</td>
+			</tr>
+			<tr>
+					<td>验证结果可复用吗</td>
+					<td>不可复用</td>
+					<td>矩阵乘法结果就是 AI 计算结果，矿工能直接用</td>
+			</tr>
+			<tr>
+					<td>电费花在哪</td>
+					<td>纯消耗</td>
+					<td>既算 AI 又挖矿，一份电费两件事</td>
+			</tr>
+			<tr>
+					<td>显卡绑定</td>
+					<td>ASIC 矿机，非通用硬件</td>
+					<td>GPU（Tensor Core），AI 行业的主力硬件</td>
+			</tr>
+	</tbody>
+</table>
+<p>一句话：<strong>Pearl 是把 AI 时代 GPU 最核心的操作——矩阵乘法——作为工作量证明。</strong></p>
+<hr>
+<h2 id="2-工作量是怎么证明的">2. 工作量是怎么证明的？</h2>
+<h3 id="21-不能直接乘完说我算完了">2.1 不能直接乘完说「我算完了」</h3>
+<p>如果矿工只算 A×B=C 然后交 C，验证者就要把 A×B 完整重算一遍（O(n³)），不划算。</p>
+<p>Pearl 的做法：<strong>要求矿工把中间过程也录下来，但只抽查一小块。</strong></p>
+<h3 id="22-加噪声防止作弊">2.2 加噪声：防止作弊</h3>
+<p>矿工先对输入矩阵 A 和 B 做一个 BLAKE3 哈希承诺（等于把数据「封起来」）。然后用这个承诺+链状态<strong>确定性生成</strong>一对低秩噪声矩阵 E 和 F。</p>
+<p>然后矿工算的是 <strong>(A+E)×(B+F)</strong>。</p>
+<p>噪声的作用：</p>
+<ul>
+<li>让矿工没法预测哪个区块会「中奖」——必须老老实实全部算完</li>
+<li>噪声是低秩的，算完之后可以很快把真实结果 A×B 恢复出来</li>
+</ul>
+<h3 id="23-分块--哈希抽查">2.3 分块 + 哈希抽查</h3>
+<p>矿工把矩阵切成很多小块（tile，比如 16×16）。每算完一个块，把结果压缩成一个哈希值，混进一个 512 位的状态向量 M。</p>
+<p>当 M 的 BLAKE3 哈希小于难度目标时，这个块就是<strong>中奖块</strong>（出块证明）。</p>
+<p>验证者只需要：</p>
+<ol>
+<li>拿到中奖块所用到的那几行原始数据（加 Merkle 路径）</li>
+<li>花 O(t²) 的时间重算<strong>这一个块</strong></li>
+<li>检查哈希是否匹配</li>
+</ol>
+<p>因为矿工不知道哪个块会中奖（噪声保证了随机性），所以必须全部诚实算完。这就像老师从 1000 道题里随机抽查一道——你偷懒就过不了关。</p>
+<h3 id="24-zksnark连原始数据都不暴露">2.4 zkSNARK：连原始数据都不暴露</h3>
+<p>以上方案有个问题：验证时需要暴露 A、B 的部分行/列，可能泄露机密（模型权重、用户数据）。</p>
+<p>于是 Pearl 用 <strong>Plonky2</strong>（基于哈希的零知识证明）做了一层 zkSNARK：</p>
+<ul>
+<li>矿工提交一个约 60KB 的零知识证明</li>
+<li>证明内容是：「我有一套符合承诺的秘密输入，跑完整套分块矩阵乘法后，得到的哈希状态满足难度条件」</li>
+<li>验证者只跑一次证明校验，<strong>看不到任何原始数据</strong></li>
+</ul>
+<p>本质：矿工把整个计算过程变成了一个「数学题答案」，验证者不需要看草稿纸就能判对错。</p>
+<hr>
+<h2 id="3-有用计算的结果给谁了">3. 有用计算的结果给谁了？</h2>
+<p><strong>给矿工自己。</strong></p>
+<p>挖矿过程中算出的 A×B 就是矿工本来要跑的 AI 计算（比如 Llama 推理、模型训练）。挖完矿，把噪声剥掉，A×B 归矿工用。</p>
+<p>链上只知道矿工「花了这么多算力」，但不知道他具体算的是什么。</p>
+<p>这意味着：企业本来要花钱租 GPU 跑 AI，在 Pearl 上跑同样的任务还能挖矿领币——等于一次算力付了两份回报。</p>
+<hr>
+<h2 id="4-那币为什么能卖钱ai-结果又没给币持有人">4. 那币为什么能卖钱？AI 结果又没给币持有人。</h2>
+<p>这个问题问到了所有 PoW 币的根本逻辑。</p>
+<p>PRL 和比特币的逻辑一模一样——<strong>背后有真实的电力投入做背书</strong>。挖出每个 PRL 的 GPU 电费是真金白银，所以币有一个「基础成本」。</p>
+<p>不同的是：</p>
+<ul>
+<li>比特币挖矿的电费<strong>纯浪费</strong>，没有外部用途</li>
+<li>Pearl 挖矿的电费同时还跑了 AI，算力的用途没有浪费</li>
+</ul>
+<p>由此产生的叙事：<strong>PRL 比 BTC 的资产更健康、更低碳</strong>。有叙事、有人信、有人买，就能交易——这和黄金能卖钱是一样的逻辑，不是因为黄金可以做牙冠，而是因为有人认它值钱。</p>
+<p><strong>不过诚实地说</strong>：目前 PRL 的「有用工作」端还没真正打开（Compute 平台售罄，市场对接在早期）。现在的矿工大多是纯算力挖矿——做的矩阵乘法不代表真实的 AI 任务。所以短期仍是投机驱动，长期能不能持续，取决于市场能不能买到这个算力。</p>
+<hr>
+<h2 id="5-目前有人用这个网络跑-ai-吗">5. 目前有人用这个网络跑 AI 吗？</h2>
+<p>实际参与情况：</p>
+<table>
+	<thead>
+			<tr>
+					<th>方式</th>
+					<th>说明</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>租云 GPU 挖</td>
+					<td>Vast.ai / RunPod 上租 H100/H200，单卡挖</td>
+			</tr>
+			<tr>
+					<td>自有显卡挖</td>
+					<td>散户的 RTX 4090、5090 等</td>
+			</tr>
+			<tr>
+					<td>Pearl Compute 平台</td>
+					<td>已售罄，排队中</td>
+			</tr>
+			<tr>
+					<td>大型数据中心</td>
+					<td><strong>还没进场</strong></td>
+			</tr>
+	</tbody>
+</table>
+<p>为什么数据中心没进场？PRL 还没上 Coinbase、币安等主流交易所，只在 SafeTrade 和场外 OTC 交易，流动性差。数据中心签长期电费合同前必须知道「币能去哪卖」。没有流动性就没有机构级参与。</p>
+<p>目前算力主力是<strong>散户抢跑阶段</strong>。</p>
+<hr>
+<h2 id="6-rtx-5090-能挖吗收益怎样">6. RTX 5090 能挖吗？收益怎样？</h2>
+<p>可以。实测数据：</p>
+<table>
+	<thead>
+			<tr>
+					<th>项目</th>
+					<th>数值</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>算力（alpha-miner v1.6）</td>
+					<td>300-360 TH/s</td>
+			</tr>
+			<tr>
+					<td>全网算力</td>
+					<td>~2.33 EH/s（波动）</td>
+			</tr>
+			<tr>
+					<td>仅 5090 占全网比例</td>
+					<td>~0.015%</td>
+			</tr>
+			<tr>
+					<td>Solo 挖矿期望出块时间</td>
+					<td>6-7 天</td>
+			</tr>
+			<tr>
+					<td>矿池挖矿日收益（粗略）</td>
+					<td>30-45 PRL</td>
+			</tr>
+	</tbody>
+</table>
+<p>WSL2 运行会有 5-10% 的 CUDA 转发损耗。推荐用原生 Linux 或 HiveOS。</p>
+<hr>
+<h2 id="7-总量有上限吗">7. 总量有上限吗？</h2>
+<p>有，<strong>总量 21 亿枚 PRL</strong>。目前挖出约 6.6%（约 1.38 亿枚）。</p>
+<hr>
+<h2 id="8-我能边跑-ai-模型边挖矿吗">8. 我能边跑 AI 模型边挖矿吗？</h2>
+<p>理论上可以，而且 Hugging Face 上已有 Pearl 适配版模型：</p>
+<ul>
+<li><strong>Llama-3.3-70B-Instruct-pearl</strong></li>
+<li><strong>Llama-3.1-8B-Instruct-pearl</strong></li>
+<li><strong>Gemma-4-31B-it-pearl</strong></li>
+</ul>
+<p>用这些模型跑 vLLM 推理时，矩阵乘法过程自动附带挖矿检查，真正做到了 AI 推理+挖矿同时跑。</p>
+<p><strong>但门槛高</strong>：需要搭全节点、下载 ~140GB 模型、配置运行环境。对于散户，现在直接用 alpha-miner 纯挖矿是更简单的路线。</p>
+<hr>
+<h2 id="9-怎么开始挖">9. 怎么开始挖？</h2>
+<ol>
+<li>下载钱包（prlctl）创建 Taproot 地址</li>
+<li>下载 alpha-miner（AlphaPool 或 Pearlhash）</li>
+<li>填地址启动</li>
+<li>攒够 1 PRL 后矿池自动转账</li>
+</ol>
+<p>矿池对比：</p>
+<table>
+	<thead>
+			<tr>
+					<th>矿池</th>
+					<th>费率</th>
+					<th>备注</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Pearlhash</td>
+					<td>0%（促销期）</td>
+					<td>界面友好</td>
+			</tr>
+			<tr>
+					<td>AlphaPool</td>
+					<td>5%</td>
+					<td>有优化过的矿工程序</td>
+			</tr>
+			<tr>
+					<td>Luckypool</td>
+					<td>1%</td>
+					<td></td>
+			</tr>
+	</tbody>
+</table>
+<hr>
+<h2 id="10-总结值得挖吗">10. 总结：值得挖吗？</h2>
+<table>
+	<thead>
+			<tr>
+					<th>角度</th>
+					<th>判断</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>叙事</td>
+					<td>强——AI+加密，PoUW 币在赛道上是唯一</td>
+			</tr>
+			<tr>
+					<td>阶段</td>
+					<td>极早期（主网上线不到 2 个月）</td>
+			</tr>
+			<tr>
+					<td>风险</td>
+					<td>高——没上大所，流动性差，随时可能归零</td>
+			</tr>
+			<tr>
+					<td>机会</td>
+					<td>低成本抢筹码，等主要交易所上线</td>
+			</tr>
+			<tr>
+					<td>硬件门槛</td>
+					<td>需要 NVIDIA 卡且有 Tensor Core（Volta 以上，推荐 Hopper/Blackwell）</td>
+			</tr>
+	</tbody>
+</table>
+<p>如果你是 GPU 矿工或对 AI 感兴趣，现在研究 Pearl 的逻辑和生态，成本很低。但别把全部身家赌进去——这还是个实验项目。</p>
+
+                    
+                    <HR width="100%" id="EOF">
+                    <p style="color:#777;">Last modified on 2026-05-30</p>
+                    
+                </div>
+            </div>
+            
+            
+            <nav class="post-pagination">
+
+                
+                <a class="newer-posts">
+                    Next<br>No newer posts.
+                </a>
+                
+                
+                
+                <a class="older-posts" href="https://zisen123.github.io/posts/rtx5090-pearl-prl-mining/">
+                    Previous<br>RTX 5090 挖 Pearl (PRL) 加密货币全流程记录
+                </a>
+                
+            </nav>
+            <div class="post-comment-wrapper">
+                
+
+
+
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+            </div>
+<div id="single-column-footer">
+Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://amazingrise.net">Rise</a>
+<br>
+Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>
+<br>
+
+&copy;
+	
+	This is a customized copyright.
+	</div>
+    	</div>
+    <script src="https://zisen123.github.io//js/journal.js"></script>
+    </body>
+</html>
