@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html><head>
+<title>VPS自建 VLESS-Reality 与 Hysteria 2 双协议节点指南</title>
+
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="google-site-verification" content="">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<meta content="telephone=no" name="format-detection">
+<meta name="description" content="使用 Docker 在境外 VPS 自适应部署 VLESS-Reality (TCP) 和 Hysteria 2 (UDP) 双协议节点，以及开启 BBR 拥塞控制和 Clash 客户端配置指南。">
+<meta name="renderer" content="webkit">
+<meta name="theme-color" content="#ffffff">
+
+
+
+
+<script src="/vendor/js/jquery.min.js" ></script>
+<script src="/vendor/js/popper.min.js" ></script>
+<script src="/vendor/js/bootstrap.min.js" ></script>
+<script src="/vendor/js/smooth-scroll.polyfills.min.js" ></script>
+<link type="text/css" rel="stylesheet" href="/vendor/css/bootstrap.min.css">
+<script src="/vendor/js/vue.min.js" ></script>
+
+
+<link rel="icon" href="https://pic.downk.cc/item/5ea95577c2a9a83be53caa55.png">
+
+
+
+
+<link rel="stylesheet" href="https://zisen123.github.io/scss/journal.min.7b955631a82546d0141c189774ddccd95e674404ce134994d51f250cbf3eb5fa.css" integrity="sha256-e5VWMaglRtAUHBiXdN3M2V5nRATOE0mU1R8lDL8&#43;tfo=" media="screen">
+
+
+
+<link rel="stylesheet" href="https://zisen123.github.io/scss/dark-mode.min.0f9b568525dc2b5e89835cb5bdd60f6346d5dd09f9cac1cd28a61e41970ad627.css" integrity="sha256-D5tWhSXcK16Jg1y1vdYPY0bV3Qn5ysHNKKYeQZcK1ic=" media="screen">
+
+
+<script src="https://zisen123.github.io//js/loadCSS.js"></script>
+<script>
+  loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Noto+Serif+SC|Material+Icons");
+</script>
+
+<script src="https://zisen123.github.io//js/table.js"></script>
+
+
+  <script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  },
+  svg: {
+    fontCache: 'global'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+code.has-jax {
+  font: inherit;
+  font-size: 100%;
+  background: inherit;
+  border: inherit;
+  color: #515151;
+}
+</style>
+
+
+
+
+<script src="https://zisen123.github.io//js/toc.js"></script>
+
+
+
+
+
+
+
+<style>
+ 
+:not(pre) > code {
+  color: #c7254e !important;
+  background-color: #f9f2f4 !important;
+  border-radius: 4px;
+  padding: 2px 4px !important;
+  font-size: 90% !important;
+}
+
+ 
+pre code {
+  color: inherit !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+}
+
+ 
+pre, pre code, pre span {
+  color: rgba(255, 255, 255, 0.9);
+}
+</style>
+</head>
+<body>
+    	<div id="app"><div ref="sideContainer" class="side-container">
+    
+    <a class="a-block nav-head false" href="https://zisen123.github.io/">
+    
+        <div class="nav-title">
+            Spark
+        </div>
+        
+        <div class="nav-subtitle">
+            Themed by Diary.
+        </div>
+        
+    </a>
+
+    <div class="nav-link-list">
+        
+        
+            
+            
+            
+                
+            
+            
+            
+            <a class="a-block nav-link-item active" href="/posts">
+                Archive
+            </a>
+            
+        
+            
+            
+            
+            
+            
+            <a class="a-block nav-link-item false" href="/categories">
+                Categories
+            </a>
+            
+        
+            
+            
+            
+            
+            
+            <a class="a-block nav-link-item false" href="/tags">
+                Tags
+            </a>
+            
+        
+            
+            
+            
+            
+            
+            <a class="a-block nav-link-item false" href="/index.xml">
+                RSS Feed
+            </a>
+            
+        
+    </div>
+
+    
+
+    <div class="nav-footer">
+        
+Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://amazingrise.net">Rise</a>
+<br>
+Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>
+<br>
+
+&copy;
+	
+	This is a customized copyright.
+	
+    </div>
+    
+</div><div ref="extraContainer" class="extra-container">
+    
+    
+    <div class="toc animated-visibility" :class="{ invisible: scrollY <= 140 }">
+
+
+	<div class="toc-content">
+	
+		
+		
+		
+		<center>- CATALOG -</center>
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%80%89%e6%8b%a9%e5%8f%8c%e5%8d%8f%e8%ae%ae" v-on:click="closeDrawer" id="为什么选择双协议-nav">
+										 为什么选择双协议？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e5%87%86%e5%a4%87%e5%b7%a5%e4%bd%9c" v-on:click="closeDrawer" id="准备工作-nav">
+										 准备工作
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e7%ac%ac%e4%b8%80%e6%ad%a5%e5%bc%80%e5%90%af-bbr-%e6%8b%a5%e5%a1%9e%e6%8e%a7%e5%88%b6" v-on:click="closeDrawer" id="第一步开启-bbr-拥塞控制-nav">
+										 第一步：开启 BBR 拥塞控制
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e7%ac%ac%e4%ba%8c%e6%ad%a5%e7%94%a8-docker-%e9%83%a8%e7%bd%b2-vless-reality" v-on:click="closeDrawer" id="第二步用-docker-部署-vless-reality-nav">
+										 第二步：用 Docker 部署 VLESS-Reality
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e7%ac%ac%e4%b8%89%e6%ad%a5%e7%94%a8-docker-%e9%83%a8%e7%bd%b2-hysteria-2" v-on:click="closeDrawer" id="第三步用-docker-部署-hysteria-2-nav">
+										 第三步：用 Docker 部署 Hysteria 2
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e7%ac%ac%e5%9b%9b%e6%ad%a5clash-%e5%ae%a2%e6%88%b7%e7%ab%af%e9%85%8d%e7%bd%ae" v-on:click="closeDrawer" id="第四步clash-客户端配置-nav">
+										 第四步：Clash 客户端配置
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e8%bf%90%e7%bb%b4%e5%b8%b8%e7%94%a8%e5%91%bd%e4%bb%a4" v-on:click="closeDrawer" id="运维常用命令-nav">
+										 运维常用命令
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+	</div>
+
+</div>
+    
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+        
+        <a class="pagination-action" v-on:click="toggleDarkMode">
+            <i class="material-icons pagination-action-icon" v-if="isDarkMode">
+                brightness_4
+            </i>
+            <i class="material-icons pagination-action-icon" v-else="isDarkMode">
+                brightness_7
+            </i>
+        </a>
+        
+        
+    </div>
+</div>
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            
+            
+            
+                
+                
+                
+                    
+                
+                
+                
+                <a class="a-block drawer-menu-item active" href="/posts">
+                    Archive
+                </a>
+                
+            
+                
+                
+                
+                
+                
+                <a class="a-block drawer-menu-item false" href="/categories">
+                    Categories
+                </a>
+                
+            
+                
+                
+                
+                
+                
+                <a class="a-block drawer-menu-item false" href="/tags">
+                    Tags
+                </a>
+                
+            
+                
+                
+                
+                
+                
+                <a class="a-block drawer-menu-item false" href="/index.xml">
+                    RSS Feed
+                </a>
+                
+            
+            
+            <div class="toc">
+
+
+	<div class="toc-content">
+	
+		
+		
+		
+		<center>- CATALOG -</center>
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e4%b8%ba%e4%bb%80%e4%b9%88%e9%80%89%e6%8b%a9%e5%8f%8c%e5%8d%8f%e8%ae%ae" v-on:click="closeDrawer" id="为什么选择双协议-nav">
+										 为什么选择双协议？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e5%87%86%e5%a4%87%e5%b7%a5%e4%bd%9c" v-on:click="closeDrawer" id="准备工作-nav">
+										 准备工作
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e7%ac%ac%e4%b8%80%e6%ad%a5%e5%bc%80%e5%90%af-bbr-%e6%8b%a5%e5%a1%9e%e6%8e%a7%e5%88%b6" v-on:click="closeDrawer" id="第一步开启-bbr-拥塞控制-nav">
+										 第一步：开启 BBR 拥塞控制
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e7%ac%ac%e4%ba%8c%e6%ad%a5%e7%94%a8-docker-%e9%83%a8%e7%bd%b2-vless-reality" v-on:click="closeDrawer" id="第二步用-docker-部署-vless-reality-nav">
+										 第二步：用 Docker 部署 VLESS-Reality
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e7%ac%ac%e4%b8%89%e6%ad%a5%e7%94%a8-docker-%e9%83%a8%e7%bd%b2-hysteria-2" v-on:click="closeDrawer" id="第三步用-docker-部署-hysteria-2-nav">
+										 第三步：用 Docker 部署 Hysteria 2
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e7%ac%ac%e5%9b%9b%e6%ad%a5clash-%e5%ae%a2%e6%88%b7%e7%ab%af%e9%85%8d%e7%bd%ae" v-on:click="closeDrawer" id="第四步clash-客户端配置-nav">
+										 第四步：Clash 客户端配置
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e8%bf%90%e7%bb%b4%e5%b8%b8%e7%94%a8%e5%91%bd%e4%bb%a4" v-on:click="closeDrawer" id="运维常用命令-nav">
+										 运维常用命令
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+	</div>
+
+</div>
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="https://zisen123.github.io/">
+            Spark
+        </a>
+        
+        <button type="button" class="nav-darkmode-toggle" v-on:click="toggleDarkMode">
+            <i class="material-icons" v-if="isDarkMode">
+                brightness_4
+            </i>
+            <i class="material-icons" v-else="isDarkMode">
+                brightness_7
+            </i>
+        </button>
+        
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="https://zisen123.github.io/">
+        <div class="single-column-header-title">Spark</div>
+        
+        <div class="single-column-header-subtitle">Themed by Diary.</div>
+        
+
+    </a>
+</div>
+            <div id="content">
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            
+            
+            
+
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('https://zisen123.github.io/')">
+                <div class="post-title">
+                    VPS自建 VLESS-Reality 与 Hysteria 2 双协议节点指南
+                    
+                    <div class="post-subtitle">
+                        使用 Docker 在境外 VPS 自适应部署 VLESS-Reality (TCP) 和 Hysteria 2 (UDP) 双协议节点，以及开启 BBR 拥塞控制和 Clash 客户端配置指南。
+                    </div>
+                    
+                    <div class="post-meta">
+                        
+                        <time itemprop="datePublished">
+                            2026-05-31 00:13
+                        </time>
+                        
+
+                        
+
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <p>在网络环境日益复杂的今天，单一代理协议往往难以兼顾“隐蔽防封锁”和“弱网爆速”的需求。本文将指导你如何在一台境外 VPS 上，通过 Docker 容器化技术同时部署 <strong>VLESS-Reality (TCP)</strong> 和 <strong>Hysteria 2 (UDP)</strong> 双协议节点，并开启 BBR 拥塞控制进行网络加速。</p>
+<h2 id="为什么选择双协议">为什么选择双协议？</h2>
+<ul>
+<li><strong>VLESS + Reality (TCP)</strong>：伪装成对真实大型网站（如苹果、谷歌官网）的 HTTPS 访问，完美通过深度包检测（DPI），抗封锁能力极强。</li>
+<li><strong>Hysteria 2 (UDP)</strong>：基于 QUIC 协议，内置 Brutal 拥塞控制算法。在丢包严重（如晚高峰或移动宽带）的弱网环境下，能强行冲高速度，堪称弱网提速神器。</li>
+</ul>
+<hr>
+<h2 id="准备工作">准备工作</h2>
+<ol>
+<li>准备一台运行 Linux（推荐 Ubuntu 22.04+）的境外 VPS。</li>
+<li>确保 VPS 在服务商后台的安全组中放行了以下端口：
+<ul>
+<li><strong>TCP 443</strong> (用于 VLESS-Reality)</li>
+<li><strong>UDP 4443</strong> (用于 Hysteria 2)</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="第一步开启-bbr-拥塞控制">第一步：开启 BBR 拥塞控制</h2>
+<p>BBR 是谷歌开发的 TCP 拥塞控制算法。开启后可显著提升 VLESS 这种基于 TCP 协议节点的传输速率。</p>
+<p>登录 VPS 后，执行以下命令：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 移除已有的相关配置并写入新配置</span>
+</span></span><span style="display:flex;"><span>sed -i <span style="color:#e6db74">&#39;/net.core.default_qdisc/d&#39;</span> /etc/sysctl.conf
+</span></span><span style="display:flex;"><span>sed -i <span style="color:#e6db74">&#39;/net.ipv4.tcp_congestion_control/d&#39;</span> /etc/sysctl.conf
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#39;net.core.default_qdisc=fq&#39;</span> &gt;&gt; /etc/sysctl.conf
+</span></span><span style="display:flex;"><span>echo <span style="color:#e6db74">&#39;net.ipv4.tcp_congestion_control=bbr&#39;</span> &gt;&gt; /etc/sysctl.conf
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 使配置生效</span>
+</span></span><span style="display:flex;"><span>sysctl -p
+</span></span></code></pre></div><p>运行后若看到 <code>net.ipv4.tcp_congestion_control = bbr</code>，说明 BBR 已成功启用。</p>
+<hr>
+<h2 id="第二步用-docker-部署-vless-reality">第二步：用 Docker 部署 VLESS-Reality</h2>
+<p>使用 Xray 官方 Docker 镜像进行部署。</p>
+<ol>
+<li><strong>编写配置文件</strong>：创建 <code>/etc/xray/config.json</code>：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-json" data-lang="json"><span style="display:flex;"><span>{
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;log&#34;</span>: {
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">&#34;loglevel&#34;</span>: <span style="color:#e6db74">&#34;warning&#34;</span>
+</span></span><span style="display:flex;"><span>    },
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;inbounds&#34;</span>: [
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;port&#34;</span>: <span style="color:#ae81ff">443</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;vless&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;settings&#34;</span>: {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;clients&#34;</span>: [
+</span></span><span style="display:flex;"><span>                    {
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">&#34;id&#34;</span>: <span style="color:#e6db74">&#34;&lt;VLESS_UUID&gt;&#34;</span>,
+</span></span><span style="display:flex;"><span>                        <span style="color:#f92672">&#34;flow&#34;</span>: <span style="color:#e6db74">&#34;xtls-rprx-vision&#34;</span>
+</span></span><span style="display:flex;"><span>                    }
+</span></span><span style="display:flex;"><span>                ],
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;decryption&#34;</span>: <span style="color:#e6db74">&#34;none&#34;</span>
+</span></span><span style="display:flex;"><span>            },
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;streamSettings&#34;</span>: {
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;network&#34;</span>: <span style="color:#e6db74">&#34;tcp&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;security&#34;</span>: <span style="color:#e6db74">&#34;reality&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&#34;realitySettings&#34;</span>: {
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">&#34;show&#34;</span>: <span style="color:#66d9ef">false</span>,
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">&#34;dest&#34;</span>: <span style="color:#e6db74">&#34;images.apple.com:443&#34;</span>,
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">&#34;xver&#34;</span>: <span style="color:#ae81ff">0</span>,
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">&#34;serverNames&#34;</span>: [
+</span></span><span style="display:flex;"><span>                        <span style="color:#e6db74">&#34;images.apple.com&#34;</span>
+</span></span><span style="display:flex;"><span>                    ],
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">&#34;privateKey&#34;</span>: <span style="color:#e6db74">&#34;&lt;Reality_PrivateKey&gt;&#34;</span>,
+</span></span><span style="display:flex;"><span>                    <span style="color:#f92672">&#34;shortIds&#34;</span>: [
+</span></span><span style="display:flex;"><span>                        <span style="color:#e6db74">&#34;f8f18902&#34;</span>
+</span></span><span style="display:flex;"><span>                    ]
+</span></span><span style="display:flex;"><span>                }
+</span></span><span style="display:flex;"><span>            }
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    ],
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">&#34;outbounds&#34;</span>: [
+</span></span><span style="display:flex;"><span>        {
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;protocol&#34;</span>: <span style="color:#e6db74">&#34;freedom&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">&#34;tag&#34;</span>: <span style="color:#e6db74">&#34;direct&#34;</span>
+</span></span><span style="display:flex;"><span>        }
+</span></span><span style="display:flex;"><span>    ]
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div></li>
+<li><strong>启动 Xray 容器</strong>：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker run -d <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --name xray <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --restart always <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --network host <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  -v /etc/xray/config.json:/etc/xray/config.json <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  teddysun/xray:latest
+</span></span></code></pre></div></li>
+</ol>
+<hr>
+<h2 id="第三步用-docker-部署-hysteria-2">第三步：用 Docker 部署 Hysteria 2</h2>
+<p>由于我们没有准备独立的域名证书，这里将使用 openssl 生成自签名证书，并在客户端开启跳过证书验证。</p>
+<ol>
+<li><strong>生成自签名证书</strong>：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>mkdir -p /etc/hysteria/certs
+</span></span><span style="display:flex;"><span>openssl req -x509 -newkey rsa:2048 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  -keyout /etc/hysteria/certs/private.key <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  -out /etc/hysteria/certs/cert.crt <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  -sha256 -days <span style="color:#ae81ff">3650</span> -nodes <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  -subj <span style="color:#e6db74">&#34;/CN=images.apple.com&#34;</span>
+</span></span></code></pre></div></li>
+<li><strong>编写配置文件</strong>：创建 <code>/etc/hysteria.yaml</code>：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">listen</span>: :<span style="color:#ae81ff">4443</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">tls</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">cert</span>: <span style="color:#ae81ff">/etc/hysteria/certs/cert.crt</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">key</span>: <span style="color:#ae81ff">/etc/hysteria/certs/private.key</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">auth</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">password</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">password</span>: <span style="color:#ae81ff">&lt;Hy2_Password&gt;</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">masquerade</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">type</span>: <span style="color:#ae81ff">proxy</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">proxy</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">url</span>: <span style="color:#ae81ff">https://images.apple.com/</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">rewriteHost</span>: <span style="color:#66d9ef">true</span>
+</span></span></code></pre></div></li>
+<li><strong>启动 Hysteria 2 容器</strong>：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>docker run -d <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --name hysteria <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --restart always <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --network host <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  -v /etc/hysteria.yaml:/etc/hysteria.yaml <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  -v /etc/hysteria/certs:/etc/hysteria/certs <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  tobyxdd/hysteria:latest <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  server -c /etc/hysteria.yaml
+</span></span></code></pre></div></li>
+</ol>
+<hr>
+<h2 id="第四步clash-客户端配置">第四步：Clash 客户端配置</h2>
+<p>在支持 <strong>Mihomo / Clash Meta</strong> 内核的客户端中，可在 <code>proxies</code> 下添加以下节点：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">proxies</span>:
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># VLESS-Reality 节点 (TCP)</span>
+</span></span><span style="display:flex;"><span>  - { <span style="color:#f92672">name</span>: <span style="color:#e6db74">&#34;🇺🇸美国自建-VLESS-Reality&#34;</span><span style="color:#f92672">, type: vless, server: &lt;YourIP&gt;, port: 443, uuid: &lt;VLESS_UUID&gt;, udp: true, flow: xtls-rprx-vision, tls: true, skip-cert-verify: false, client-fingerprint: chrome, servername: images.apple.com, reality-opts</span>: { <span style="color:#f92672">public-key</span>: <span style="color:#e6db74">&#34;&lt;Reality_PublicKey&gt;&#34;</span><span style="color:#f92672">, short-id</span>: <span style="color:#e6db74">&#34;f8f18902&#34;</span> } }
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e"># Hysteria 2 节点 (UDP)</span>
+</span></span><span style="display:flex;"><span>  - { <span style="color:#f92672">name</span>: <span style="color:#e6db74">&#34;🇺🇸美国自建-Hysteria2&#34;</span><span style="color:#f92672">, type: hysteria2, server: &lt;YourIP&gt;, port: 4443, password: &lt;Hy2_Password&gt;, sni: images.apple.com, skip-cert-verify</span>: <span style="color:#66d9ef">true</span> }
+</span></span></code></pre></div><h2 id="运维常用命令">运维常用命令</h2>
+<p>在服务器上，你可以使用以下 Docker 指令管理这两个容器：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># 查看运行中的节点容器</span>
+</span></span><span style="display:flex;"><span>docker ps
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 查看连接日志</span>
+</span></span><span style="display:flex;"><span>docker logs -f xray
+</span></span><span style="display:flex;"><span>docker logs -f hysteria
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># 重启或卸载服务</span>
+</span></span><span style="display:flex;"><span>docker restart xray hysteria
+</span></span><span style="display:flex;"><span>docker rm -f xray hysteria
+</span></span></code></pre></div>
+                    
+                    <HR width="100%" id="EOF">
+                    <p style="color:#777;">Last modified on 2026-05-31</p>
+                    
+                </div>
+            </div>
+            
+            
+            <nav class="post-pagination">
+
+                
+                <a class="newer-posts">
+                    Next<br>No newer posts.
+                </a>
+                
+                
+                
+                <a class="older-posts" href="https://zisen123.github.io/posts/pearl-pouw-crypto-intro/">
+                    Previous<br>Pearl (PRL) 原理科普：AI 算力怎么变成加密货币？
+                </a>
+                
+            </nav>
+            <div class="post-comment-wrapper">
+                
+
+
+
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+            </div>
+<div id="single-column-footer">
+Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://amazingrise.net">Rise</a>
+<br>
+Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>
+<br>
+
+&copy;
+	
+	This is a customized copyright.
+	</div>
+    	</div>
+    <script src="https://zisen123.github.io//js/journal.js"></script>
+    </body>
+</html>
