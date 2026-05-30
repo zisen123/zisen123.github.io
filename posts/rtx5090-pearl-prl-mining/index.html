@@ -1728,7 +1728,7 @@ Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopene
 </code></pre><h3 id="42-一键启动脚本">4.2 一键启动脚本</h3>
 <p>创建 <code>start-miner.bat</code>（双击启动）和 <code>stop-miner.bat</code>（双击停止）。</p>
 <p>启动 PowerShell 脚本核心：</p>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>$cmd = <span style="color:#e6db74">&#34;cp /mnt/c/Users/yicong/Downloads/pearl/pearl-miner-v7.exe /tmp/pm-win 2&gt;/dev/null; chmod +x /tmp/pm-win; /tmp/pm-win --host 84.32.220.219:9000 --user prl1你的地址&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>$cmd = <span style="color:#e6db74">&#34;cp /mnt/c/Users/&lt;YourUsername&gt;/Downloads/pearl/pearl-miner-v7.exe /tmp/pm-win 2&gt;/dev/null; chmod +x /tmp/pm-win; /tmp/pm-win --host 84.32.220.219:9000 --user prl1你的地址&#34;</span>
 </span></span><span style="display:flex;"><span>
 </span></span><span style="display:flex;"><span>Start-Process wsl.exe -ArgumentList <span style="color:#e6db74">&#34;bash -c </span><span style="color:#ae81ff">`&#34;</span>$cmd<span style="color:#ae81ff">`&#34;</span><span style="color:#e6db74">&#34;</span> -WindowStyle Minimized -PassThru
 </span></span></code></pre></div><p>停止脚本：</p>
@@ -1918,7 +1918,7 @@ Hashrate GPU #0 = 208.29 TH/s
 </table>
 <hr>
 <h2 id="附录矿工启动命令">附录：矿工启动命令</h2>
-<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>wsl bash -c <span style="color:#e6db74">&#34;/mnt/c/Users/yicong/Downloads/pearl/pearl-miner-v7.exe --host 84.32.220.219:9000 --user 你的PRL地址&#34;</span>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>wsl bash -c <span style="color:#e6db74">&#34;/mnt/c/Users/&lt;YourUsername&gt;/Downloads/pearl/pearl-miner-v7.exe --host 84.32.220.219:9000 --user 你的PRL地址&#34;</span>
 </span></span></code></pre></div>
                     
                     <HR width="100%" id="EOF">

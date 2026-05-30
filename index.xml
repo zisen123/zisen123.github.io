@@ -129,7 +129,7 @@
 &lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;42-一键启动脚本&#34;&gt;4.2 一键启动脚本&lt;/h3&gt;
 &lt;p&gt;创建 &lt;code&gt;start-miner.bat&lt;/code&gt;（双击启动）和 &lt;code&gt;stop-miner.bat&lt;/code&gt;（双击停止）。&lt;/p&gt;
 &lt;p&gt;启动 PowerShell 脚本核心：&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-powershell&#34; data-lang=&#34;powershell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$cmd = &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;cp /mnt/c/Users/yicong/Downloads/pearl/pearl-miner-v7.exe /tmp/pm-win 2&amp;gt;/dev/null; chmod +x /tmp/pm-win; /tmp/pm-win --host 84.32.220.219:9000 --user prl1你的地址&amp;#34;&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-powershell&#34; data-lang=&#34;powershell&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;$cmd = &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;cp /mnt/c/Users/&amp;lt;YourUsername&amp;gt;/Downloads/pearl/pearl-miner-v7.exe /tmp/pm-win 2&amp;gt;/dev/null; chmod +x /tmp/pm-win; /tmp/pm-win --host 84.32.220.219:9000 --user prl1你的地址&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;Start-Process wsl.exe -ArgumentList &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;bash -c &lt;/span&gt;&lt;span style=&#34;color:#ae81ff&#34;&gt;`&amp;#34;&lt;/span&gt;$cmd&lt;span style=&#34;color:#ae81ff&#34;&gt;`&amp;#34;&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&lt;/span&gt; -WindowStyle Minimized -PassThru
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;停止脚本：&lt;/p&gt;
@@ -319,7 +319,7 @@ Hashrate GPU #0 = 208.29 TH/s
 &lt;/table&gt;
 &lt;hr&gt;
 &lt;h2 id=&#34;附录矿工启动命令&#34;&gt;附录：矿工启动命令&lt;/h2&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;wsl bash -c &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/mnt/c/Users/yicong/Downloads/pearl/pearl-miner-v7.exe --host 84.32.220.219:9000 --user 你的PRL地址&amp;#34;&lt;/span&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;wsl bash -c &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;/mnt/c/Users/&amp;lt;YourUsername&amp;gt;/Downloads/pearl/pearl-miner-v7.exe --host 84.32.220.219:9000 --user 你的PRL地址&amp;#34;&lt;/span&gt;
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;- https://zisen123.github.io/posts/rtx5090-pearl-prl-mining/ - This is a customized copyright.</description>
         </item>
     
