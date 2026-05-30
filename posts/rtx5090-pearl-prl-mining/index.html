@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html><head>
+<title>RTX 5090 挖 Pearl (PRL) 加密货币全流程记录</title>
+
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="google-site-verification" content="">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<meta content="telephone=no" name="format-detection">
+<meta name="description" content="从零开始在 Windows 上通过 WSL2 运行 Pearlhash 矿工，用 RTX 5090 挖 Proof-of-Useful-Work (PoUW) 代币 PRL 的完整折腾记录，包含矿池选择、收益分析、钱包同步等实战经验。">
+<meta name="renderer" content="webkit">
+<meta name="theme-color" content="#ffffff">
+
+
+
+
+<script src="/vendor/js/jquery.min.js" ></script>
+<script src="/vendor/js/popper.min.js" ></script>
+<script src="/vendor/js/bootstrap.min.js" ></script>
+<script src="/vendor/js/smooth-scroll.polyfills.min.js" ></script>
+<link type="text/css" rel="stylesheet" href="/vendor/css/bootstrap.min.css">
+<script src="/vendor/js/vue.min.js" ></script>
+
+
+<link rel="icon" href="https://pic.downk.cc/item/5ea95577c2a9a83be53caa55.png">
+
+
+
+
+<link rel="stylesheet" href="https://zisen123.github.io/scss/journal.min.7b955631a82546d0141c189774ddccd95e674404ce134994d51f250cbf3eb5fa.css" integrity="sha256-e5VWMaglRtAUHBiXdN3M2V5nRATOE0mU1R8lDL8&#43;tfo=" media="screen">
+
+
+
+<link rel="stylesheet" href="https://zisen123.github.io/scss/dark-mode.min.0f9b568525dc2b5e89835cb5bdd60f6346d5dd09f9cac1cd28a61e41970ad627.css" integrity="sha256-D5tWhSXcK16Jg1y1vdYPY0bV3Qn5ysHNKKYeQZcK1ic=" media="screen">
+
+
+<script src="https://zisen123.github.io//js/loadCSS.js"></script>
+<script>
+  loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Noto+Serif+SC|Material+Icons");
+</script>
+
+<script src="https://zisen123.github.io//js/table.js"></script>
+
+
+  <script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  },
+  svg: {
+    fontCache: 'global'
+  }
+};
+</script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+code.has-jax {
+  font: inherit;
+  font-size: 100%;
+  background: inherit;
+  border: inherit;
+  color: #515151;
+}
+</style>
+
+
+
+
+<script src="https://zisen123.github.io//js/toc.js"></script>
+
+
+
+
+
+
+
+<style>
+ 
+:not(pre) > code {
+  color: #c7254e !important;
+  background-color: #f9f2f4 !important;
+  border-radius: 4px;
+  padding: 2px 4px !important;
+  font-size: 90% !important;
+}
+
+ 
+pre code {
+  color: inherit !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+}
+
+ 
+pre, pre code, pre span {
+  color: rgba(255, 255, 255, 0.9);
+}
+</style>
+</head>
+<body>
+    	<div id="app"><div ref="sideContainer" class="side-container">
+    
+    <a class="a-block nav-head false" href="https://zisen123.github.io/">
+    
+        <div class="nav-title">
+            Spark
+        </div>
+        
+        <div class="nav-subtitle">
+            Themed by Diary.
+        </div>
+        
+    </a>
+
+    <div class="nav-link-list">
+        
+        
+            
+            
+            
+                
+            
+            
+            
+            <a class="a-block nav-link-item active" href="/posts">
+                Archive
+            </a>
+            
+        
+            
+            
+            
+            
+            
+            <a class="a-block nav-link-item false" href="/categories">
+                Categories
+            </a>
+            
+        
+            
+            
+            
+            
+            
+            <a class="a-block nav-link-item false" href="/tags">
+                Tags
+            </a>
+            
+        
+            
+            
+            
+            
+            
+            <a class="a-block nav-link-item false" href="/index.xml">
+                RSS Feed
+            </a>
+            
+        
+    </div>
+
+    
+
+    <div class="nav-footer">
+        
+Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://amazingrise.net">Rise</a>
+<br>
+Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>
+<br>
+
+&copy;
+	
+	This is a customized copyright.
+	
+    </div>
+    
+</div><div ref="extraContainer" class="extra-container">
+    
+    
+    <div class="toc animated-visibility" :class="{ invisible: scrollY <= 140 }">
+
+
+	<div class="toc-content">
+	
+		
+		
+		
+		<center>- CATALOG -</center>
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#1-pearl-%e6%98%af%e4%bb%80%e4%b9%88" v-on:click="closeDrawer" id="1-pearl-是什么-nav">
+										 1. Pearl 是什么
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#2-%e4%b8%a4%e6%9d%a1%e6%8c%96%e7%9f%bf%e8%b7%af%e5%be%84%e5%af%b9%e6%af%94" v-on:click="closeDrawer" id="2-两条挖矿路径对比-nav">
+										 2. 两条挖矿路径对比
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#3-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" v-on:click="closeDrawer" id="3-环境准备-nav">
+										 3. 环境准备
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#31-%e4%b8%8b%e8%bd%bd%e9%92%b1%e5%8c%85" v-on:click="closeDrawer" id="31-下载钱包-nav">
+										 3.1 下载钱包
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#32-%e4%b8%8b%e8%bd%bd%e7%9f%bf%e5%b7%a5" v-on:click="closeDrawer" id="32-下载矿工-nav">
+										 3.2 下载矿工
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#33-wsl2-%e7%a1%ae%e8%ae%a4" v-on:click="closeDrawer" id="33-wsl2-确认-nav">
+										 3.3 WSL2 确认
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#34-windows-defender-%e6%8e%92%e9%99%a4" v-on:click="closeDrawer" id="34-windows-defender-排除-nav">
+										 3.4 Windows Defender 排除
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#4-%e5%90%af%e5%8a%a8%e6%8c%96%e7%9f%bf" v-on:click="closeDrawer" id="4-启动挖矿-nav">
+										 4. 启动挖矿
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#41-%e6%89%be%e5%88%b0%e7%9f%bf%e6%b1%a0%e8%bf%9e%e6%8e%a5%e5%8f%82%e6%95%b0" v-on:click="closeDrawer" id="41-找到矿池连接参数-nav">
+										 4.1 找到矿池连接参数
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#42-%e4%b8%80%e9%94%ae%e5%90%af%e5%8a%a8%e8%84%9a%e6%9c%ac" v-on:click="closeDrawer" id="42-一键启动脚本-nav">
+										 4.2 一键启动脚本
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#43-%e5%90%af%e5%8a%a8%e9%aa%8c%e8%af%81" v-on:click="closeDrawer" id="43-启动验证-nav">
+										 4.3 启动验证
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#5-%e6%94%b6%e7%9b%8a%e5%88%86%e6%9e%90" v-on:click="closeDrawer" id="5-收益分析-nav">
+										 5. 收益分析
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#51-%e7%ae%97%e5%8a%9b%e6%95%b0%e6%8d%ae" v-on:click="closeDrawer" id="51-算力数据-nav">
+										 5.1 算力数据
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#52-%e6%94%b6%e7%9b%8a%e8%ae%a1%e7%ae%97" v-on:click="closeDrawer" id="52-收益计算-nav">
+										 5.2 收益计算
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#6-pplns-%e7%9f%bf%e6%b1%a0%e6%9c%ba%e5%88%b6" v-on:click="closeDrawer" id="6-pplns-矿池机制-nav">
+										 6. PPLNS 矿池机制
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#61-%e5%85%b3%e9%94%ae%e6%a6%82%e5%bf%b5" v-on:click="closeDrawer" id="61-关键概念-nav">
+										 6.1 关键概念
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#62-%e6%96%ad%e5%bc%80%e9%87%8d%e8%bf%9e" v-on:click="closeDrawer" id="62-断开重连-nav">
+										 6.2 断开重连
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#63-%e7%bd%91%e9%a1%b5%e6%98%be%e7%a4%ba%e4%ba%86%e4%bd%86%e9%92%b1%e5%8c%85%e4%b8%ba-0" v-on:click="closeDrawer" id="63-网页显示了但钱包为-0-nav">
+										 6.3 “网页显示了但钱包为 0”
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#7-%e5%85%b3%e4%ba%8e%e6%8d%a2%e5%9c%b0%e5%9d%80" v-on:click="closeDrawer" id="7-关于换地址-nav">
+										 7. 关于换地址
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#8-%e5%99%aa%e9%9f%b3%e6%8e%a7%e5%88%b6" v-on:click="closeDrawer" id="8-噪音控制-nav">
+										 8. 噪音控制
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#9-apple-silicon-m1m2m3m4-%e8%83%bd%e6%8c%96%e5%90%97" v-on:click="closeDrawer" id="9-apple-silicon-m1m2m3m4-能挖吗-nav">
+										 9. Apple Silicon (M1/M2/M3/M4) 能挖吗？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#10-%e5%8f%98%e7%8e%b0%e8%b7%af%e5%be%84" v-on:click="closeDrawer" id="10-变现路径-nav">
+										 10. 变现路径
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#11-%e7%9f%bf%e6%b1%a0%e9%80%89%e6%8b%a9" v-on:click="closeDrawer" id="11-矿池选择-nav">
+										 11. 矿池选择
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#12-%e7%9f%a5%e8%af%86%e7%82%b9%e9%80%9f%e6%9f%a5" v-on:click="closeDrawer" id="12-知识点速查-nav">
+										 12. 知识点速查
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e9%99%84%e5%bd%95%e7%9f%bf%e5%b7%a5%e5%90%af%e5%8a%a8%e5%91%bd%e4%bb%a4" v-on:click="closeDrawer" id="附录矿工启动命令-nav">
+										 附录：矿工启动命令
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+	</div>
+
+</div>
+    
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+        
+        <a class="pagination-action" v-on:click="toggleDarkMode">
+            <i class="material-icons pagination-action-icon" v-if="isDarkMode">
+                brightness_4
+            </i>
+            <i class="material-icons pagination-action-icon" v-else="isDarkMode">
+                brightness_7
+            </i>
+        </a>
+        
+        
+    </div>
+</div>
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            
+            
+            
+                
+                
+                
+                    
+                
+                
+                
+                <a class="a-block drawer-menu-item active" href="/posts">
+                    Archive
+                </a>
+                
+            
+                
+                
+                
+                
+                
+                <a class="a-block drawer-menu-item false" href="/categories">
+                    Categories
+                </a>
+                
+            
+                
+                
+                
+                
+                
+                <a class="a-block drawer-menu-item false" href="/tags">
+                    Tags
+                </a>
+                
+            
+                
+                
+                
+                
+                
+                <a class="a-block drawer-menu-item false" href="/index.xml">
+                    RSS Feed
+                </a>
+                
+            
+            
+            <div class="toc">
+
+
+	<div class="toc-content">
+	
+		
+		
+		
+		<center>- CATALOG -</center>
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#1-pearl-%e6%98%af%e4%bb%80%e4%b9%88" v-on:click="closeDrawer" id="1-pearl-是什么-nav">
+										 1. Pearl 是什么
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#2-%e4%b8%a4%e6%9d%a1%e6%8c%96%e7%9f%bf%e8%b7%af%e5%be%84%e5%af%b9%e6%af%94" v-on:click="closeDrawer" id="2-两条挖矿路径对比-nav">
+										 2. 两条挖矿路径对比
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#3-%e7%8e%af%e5%a2%83%e5%87%86%e5%a4%87" v-on:click="closeDrawer" id="3-环境准备-nav">
+										 3. 环境准备
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#31-%e4%b8%8b%e8%bd%bd%e9%92%b1%e5%8c%85" v-on:click="closeDrawer" id="31-下载钱包-nav">
+										 3.1 下载钱包
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#32-%e4%b8%8b%e8%bd%bd%e7%9f%bf%e5%b7%a5" v-on:click="closeDrawer" id="32-下载矿工-nav">
+										 3.2 下载矿工
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#33-wsl2-%e7%a1%ae%e8%ae%a4" v-on:click="closeDrawer" id="33-wsl2-确认-nav">
+										 3.3 WSL2 确认
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#34-windows-defender-%e6%8e%92%e9%99%a4" v-on:click="closeDrawer" id="34-windows-defender-排除-nav">
+										 3.4 Windows Defender 排除
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#4-%e5%90%af%e5%8a%a8%e6%8c%96%e7%9f%bf" v-on:click="closeDrawer" id="4-启动挖矿-nav">
+										 4. 启动挖矿
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#41-%e6%89%be%e5%88%b0%e7%9f%bf%e6%b1%a0%e8%bf%9e%e6%8e%a5%e5%8f%82%e6%95%b0" v-on:click="closeDrawer" id="41-找到矿池连接参数-nav">
+										 4.1 找到矿池连接参数
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#42-%e4%b8%80%e9%94%ae%e5%90%af%e5%8a%a8%e8%84%9a%e6%9c%ac" v-on:click="closeDrawer" id="42-一键启动脚本-nav">
+										 4.2 一键启动脚本
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#43-%e5%90%af%e5%8a%a8%e9%aa%8c%e8%af%81" v-on:click="closeDrawer" id="43-启动验证-nav">
+										 4.3 启动验证
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#5-%e6%94%b6%e7%9b%8a%e5%88%86%e6%9e%90" v-on:click="closeDrawer" id="5-收益分析-nav">
+										 5. 收益分析
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#51-%e7%ae%97%e5%8a%9b%e6%95%b0%e6%8d%ae" v-on:click="closeDrawer" id="51-算力数据-nav">
+										 5.1 算力数据
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#52-%e6%94%b6%e7%9b%8a%e8%ae%a1%e7%ae%97" v-on:click="closeDrawer" id="52-收益计算-nav">
+										 5.2 收益计算
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#6-pplns-%e7%9f%bf%e6%b1%a0%e6%9c%ba%e5%88%b6" v-on:click="closeDrawer" id="6-pplns-矿池机制-nav">
+										 6. PPLNS 矿池机制
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#61-%e5%85%b3%e9%94%ae%e6%a6%82%e5%bf%b5" v-on:click="closeDrawer" id="61-关键概念-nav">
+										 6.1 关键概念
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#62-%e6%96%ad%e5%bc%80%e9%87%8d%e8%bf%9e" v-on:click="closeDrawer" id="62-断开重连-nav">
+										 6.2 断开重连
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#63-%e7%bd%91%e9%a1%b5%e6%98%be%e7%a4%ba%e4%ba%86%e4%bd%86%e9%92%b1%e5%8c%85%e4%b8%ba-0" v-on:click="closeDrawer" id="63-网页显示了但钱包为-0-nav">
+										 6.3 “网页显示了但钱包为 0”
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#7-%e5%85%b3%e4%ba%8e%e6%8d%a2%e5%9c%b0%e5%9d%80" v-on:click="closeDrawer" id="7-关于换地址-nav">
+										 7. 关于换地址
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#8-%e5%99%aa%e9%9f%b3%e6%8e%a7%e5%88%b6" v-on:click="closeDrawer" id="8-噪音控制-nav">
+										 8. 噪音控制
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#9-apple-silicon-m1m2m3m4-%e8%83%bd%e6%8c%96%e5%90%97" v-on:click="closeDrawer" id="9-apple-silicon-m1m2m3m4-能挖吗-nav">
+										 9. Apple Silicon (M1/M2/M3/M4) 能挖吗？
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#10-%e5%8f%98%e7%8e%b0%e8%b7%af%e5%be%84" v-on:click="closeDrawer" id="10-变现路径-nav">
+										 10. 变现路径
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#11-%e7%9f%bf%e6%b1%a0%e9%80%89%e6%8b%a9" v-on:click="closeDrawer" id="11-矿池选择-nav">
+										 11. 矿池选择
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#12-%e7%9f%a5%e8%af%86%e7%82%b9%e9%80%9f%e6%9f%a5" v-on:click="closeDrawer" id="12-知识点速查-nav">
+										 12. 知识点速查
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e9%99%84%e5%bd%95%e7%9f%bf%e5%b7%a5%e5%90%af%e5%8a%a8%e5%91%bd%e4%bb%a4" v-on:click="closeDrawer" id="附录矿工启动命令-nav">
+										 附录：矿工启动命令
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+	</div>
+
+</div>
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="https://zisen123.github.io/">
+            Spark
+        </a>
+        
+        <button type="button" class="nav-darkmode-toggle" v-on:click="toggleDarkMode">
+            <i class="material-icons" v-if="isDarkMode">
+                brightness_4
+            </i>
+            <i class="material-icons" v-else="isDarkMode">
+                brightness_7
+            </i>
+        </button>
+        
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="https://zisen123.github.io/">
+        <div class="single-column-header-title">Spark</div>
+        
+        <div class="single-column-header-subtitle">Themed by Diary.</div>
+        
+
+    </a>
+</div>
+            <div id="content">
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            
+            
+            
+
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('https://zisen123.github.io/')">
+                <div class="post-title">
+                    RTX 5090 挖 Pearl (PRL) 加密货币全流程记录
+                    
+                    <div class="post-subtitle">
+                        从零开始在 Windows 上通过 WSL2 运行 Pearlhash 矿工，用 RTX 5090 挖 Proof-of-Useful-Work (PoUW) 代币 PRL 的完整折腾记录，包含矿池选择、收益分析、钱包同步等实战经验。
+                    </div>
+                    
+                    <div class="post-meta">
+                        
+                        <time itemprop="datePublished">
+                            2026-05-30 19:00
+                        </time>
+                        
+
+                        
+
+                        
+                            <i class="material-icons" style="">label</i>
+                            
+                                <a href="/tags/crypto">crypto</a>
+                                &nbsp;
+                            
+                                <a href="/tags/mining">mining</a>
+                                &nbsp;
+                            
+                                <a href="/tags/pearl">pearl</a>
+                                &nbsp;
+                            
+                                <a href="/tags/prl">prl</a>
+                                &nbsp;
+                            
+                                <a href="/tags/rtx5090">rtx5090</a>
+                                &nbsp;
+                            
+                                <a href="/tags/wsl2">wsl2</a>
+                                &nbsp;
+                            
+                                <a href="/tags/gpu">gpu</a>
+                                &nbsp;
+                            
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <p>本笔记记录了在 Windows 上使用 RTX 5090 显卡，通过 WSL2 运行 Pearlhash 矿工挖 PRL（Pearl）的完整流程。</p>
+<hr>
+<h2 id="1-pearl-是什么">1. Pearl 是什么</h2>
+<p>Pearl 是一个基于 <strong>Proof-of-Useful-Work (PoUW)</strong> 的 L1 区块链。与比特币的 SHA-256 哈希不同，Pearl 的 PoW 算法是 <strong>INT8 矩阵乘法 + BLAKE3 哈希</strong>——也就是 GPU 最擅长的事情。挖矿过程中 GPU 执行实际的矩阵乘法运算，作为副产品产出区块证明。</p>
+<ul>
+<li>白皮书：https://pearlresearch.ai</li>
+<li>GitHub：https://github.com/pearl-research-labs/pearl</li>
+<li>浏览器：https://explorer.pearlresearch.ai</li>
+<li>交易所：https://safetrade.com（PRL/USDT）</li>
+<li>币价：约 $1.08（2026-05-30）</li>
+</ul>
+<table>
+	<thead>
+			<tr>
+					<th>参数</th>
+					<th>数值</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>算法</td>
+					<td>pearl (INT8 MatMul + BLAKE3)</td>
+			</tr>
+			<tr>
+					<td>区块时间</td>
+					<td>~112.8 秒</td>
+			</tr>
+			<tr>
+					<td>区块奖励</td>
+					<td>2688 PRL</td>
+			</tr>
+			<tr>
+					<td>全网算力</td>
+					<td>~18.24 Eh/s</td>
+			</tr>
+	</tbody>
+</table>
+<hr>
+<h2 id="2-两条挖矿路径对比">2. 两条挖矿路径对比</h2>
+<table>
+	<thead>
+			<tr>
+					<th></th>
+					<th>官方 vLLM 矿工</th>
+					<th>Pearlhash 矿池矿工</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>原理</td>
+					<td>跑 Llama-70B 推理 → 矩阵乘法副产品挖矿</td>
+					<td>直接做 MatMul+噪声+哈希，纯算力挖矿</td>
+			</tr>
+			<tr>
+					<td>依赖</td>
+					<td>Go + Rust + Python + CUDA + C 编译器</td>
+					<td><strong>一个二进制文件</strong></td>
+			</tr>
+			<tr>
+					<td>全节点</td>
+					<td>需要同步 pearld</td>
+					<td><strong>不需要</strong></td>
+			</tr>
+			<tr>
+					<td>AI 模型</td>
+					<td>需下载 ~140GB Llama-70B</td>
+					<td><strong>不需要</strong></td>
+			</tr>
+			<tr>
+					<td>5090 兼容</td>
+					<td>sm90 only (H100/H200)</td>
+					<td><strong>实测支持 sm120 ✅</strong></td>
+			</tr>
+			<tr>
+					<td>复杂度</td>
+					<td>极高</td>
+					<td>低</td>
+			</tr>
+	</tbody>
+</table>
+<p><strong>结论：走 Pearlhash 矿池路线。</strong></p>
+<hr>
+<h2 id="3-环境准备">3. 环境准备</h2>
+<h3 id="31-下载钱包">3.1 下载钱包</h3>
+<p>从 <a href="https://github.com/pearl-research-labs/pearl/releases">GitHub Releases</a> 下载：</p>
+<ul>
+<li><strong>Pearl-Wallet-Setup-1.0.0.exe</strong>（109MB，图形界面钱包）</li>
+</ul>
+<p>安装后创建钱包，<strong>记录助记词到纸上</strong>，获取 Taproot 格式的收款地址（以 <code>prl1</code> 开头）。</p>
+<h3 id="32-下载矿工">3.2 下载矿工</h3>
+<p>Pearlhash 矿池提供独立矿工程序：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>curl https://pearlhash.xyz/downloads/pearl-miner-v7 -o pearl-miner
+</span></span><span style="display:flex;"><span>chmod +x pearl-miner
+</span></span></code></pre></div><blockquote>
+<p>矿工是 Linux ELF 二进制（64-bit, x86-64, dynamically linked），在 Windows 上需要通过 WSL2 运行。</p>
+</blockquote>
+<h3 id="33-wsl2-确认">3.3 WSL2 确认</h3>
+<p>检查 WSL2 是否已安装：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>wsl --list --verbose
+</span></span></code></pre></div><p>如果未安装：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>wsl --install
+</span></span></code></pre></div><h3 id="34-windows-defender-排除">3.4 Windows Defender 排除</h3>
+<p>Windows 安全中心 → 病毒和威胁防护 → 排除项 → 添加文件夹 <code>C:\Users\&lt;user&gt;\Downloads\pearl</code></p>
+<hr>
+<h2 id="4-启动挖矿">4. 启动挖矿</h2>
+<h3 id="41-找到矿池连接参数">4.1 找到矿池连接参数</h3>
+<p>从 Pearlhash 网页 HTML 中提取的命令格式：</p>
+<pre tabindex="0"><code>./pearl-miner --host 84.32.220.219:9000 --user &lt;地址&gt;
+</code></pre><h3 id="42-一键启动脚本">4.2 一键启动脚本</h3>
+<p>创建 <code>start-miner.bat</code>（双击启动）和 <code>stop-miner.bat</code>（双击停止）。</p>
+<p>启动 PowerShell 脚本核心：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>$cmd = <span style="color:#e6db74">&#34;cp /mnt/c/Users/yicong/Downloads/pearl/pearl-miner-v7.exe /tmp/pm-win 2&gt;/dev/null; chmod +x /tmp/pm-win; /tmp/pm-win --host 84.32.220.219:9000 --user prl1你的地址&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>Start-Process wsl.exe -ArgumentList <span style="color:#e6db74">&#34;bash -c </span><span style="color:#ae81ff">`&#34;</span>$cmd<span style="color:#ae81ff">`&#34;</span><span style="color:#e6db74">&#34;</span> -WindowStyle Minimized -PassThru
+</span></span></code></pre></div><p>停止脚本：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-powershell" data-lang="powershell"><span style="display:flex;"><span>wsl bash -c <span style="color:#e6db74">&#34;pkill -9 -f pearl-miner 2&gt;/dev/null&#34;</span>
+</span></span><span style="display:flex;"><span>wsl --shutdown
+</span></span></code></pre></div><h3 id="43-启动验证">4.3 启动验证</h3>
+<p>运行后矿工输出：</p>
+<pre tabindex="0"><code>GPU #0 (sm: 120) initialized     ← RTX 5090 Blackwell 架构识别成功
+Connected to 84.32.220.219:9000
+Login success!
+Hashrate GPU #0 = 208.29 TH/s
+</code></pre><hr>
+<h2 id="5-收益分析">5. 收益分析</h2>
+<h3 id="51-算力数据">5.1 算力数据</h3>
+<table>
+	<thead>
+			<tr>
+					<th>配置</th>
+					<th>算力</th>
+					<th>功耗</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>默认频率</td>
+					<td>~208 TH/s</td>
+					<td>~510W</td>
+			</tr>
+			<tr>
+					<td>锁功耗（350-400W）</td>
+					<td>~170-180 TH/s</td>
+					<td>低噪音</td>
+			</tr>
+			<tr>
+					<td>超频（Core +200, PL 575W）</td>
+					<td>~309 TH/s</td>
+					<td>590W</td>
+			</tr>
+	</tbody>
+</table>
+<h3 id="52-收益计算">5.2 收益计算</h3>
+<ul>
+<li>PRL 价格：$1.08</li>
+<li>每天收入（208 TH/s）：~$29</li>
+<li>每小时收入：~$1.22</li>
+<li>每小时净利（电费 $0.06/kWh）：~$1.17</li>
+<li>最低支付门槛：1 PRL</li>
+<li>攒够门槛需时：~15-20 分钟</li>
+</ul>
+<hr>
+<h2 id="6-pplns-矿池机制">6. PPLNS 矿池机制</h2>
+<h3 id="61-关键概念">6.1 关键概念</h3>
+<table>
+	<thead>
+			<tr>
+					<th>概念</th>
+					<th>说明</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>PPLNS</td>
+					<td>Pay Per Last N Shares，按最后 N 个份额分配奖励</td>
+			</tr>
+			<tr>
+					<td>Immature（未成熟）</td>
+					<td>区块奖励需等 100 个区块确认后才能使用</td>
+			</tr>
+			<tr>
+					<td>最低支付门槛</td>
+					<td>1 PRL，满额后矿池自动打款</td>
+			</tr>
+	</tbody>
+</table>
+<h3 id="62-断开重连">6.2 断开重连</h3>
+<ul>
+<li>断开<strong>立即</strong>重连 → 不浪费，份额还在 PPLNS 窗口内</li>
+<li>断开<strong>很久</strong>再回来 → 老份额被挤出窗口，前面白挖</li>
+</ul>
+<h3 id="63-网页显示了但钱包为-0">6.3 &ldquo;网页显示了但钱包为 0&rdquo;</h3>
+<p>矿池网页显示的是<strong>内部记账</strong>，不等于链上转账。等余额成熟（100 确认）且满 1 PRL 后，矿池才会发链上交易。</p>
+<p>验证方式：去区块链浏览器搜地址 <a href="https://explorer.pearlresearch.ai">https://explorer.pearlresearch.ai</a></p>
+<hr>
+<h2 id="7-关于换地址">7. 关于换地址</h2>
+<ul>
+<li>每个地址的余额<strong>独立计算</strong></li>
+<li>切到新地址后，旧地址的余额保留但不会自动合并</li>
+<li>旧地址余额不满 1 PRL 会卡住，需切回去继续挖到满</li>
+<li>Pearl 钱包是 HD 钱包，每次点&quot;收款&quot;生成新地址，但都属于同一个助记词</li>
+</ul>
+<hr>
+<h2 id="8-噪音控制">8. 噪音控制</h2>
+<p>RTX 5090 满载 510W 风扇非常吵。锁功耗方案：</p>
+<ul>
+<li>用 MSI Afterburner 把 PowerLimit 降到 350-400W</li>
+<li>算力降到 ~170-180 TH/s 但噪音大幅降低</li>
+<li>适合夜间或日常办公场景</li>
+</ul>
+<hr>
+<h2 id="9-apple-silicon-m1m2m3m4-能挖吗">9. Apple Silicon (M1/M2/M3/M4) 能挖吗？</h2>
+<p>理论可行但实践中<strong>做不到</strong>：</p>
+<ol>
+<li>Pearlhash 矿工二进制是 x86-64，且依赖 CUDA</li>
+<li>二进制中包含 <code>mps</code>（Metal Performance Shaders）字符串，说明代码预留了苹果 GPU 路径，但未激活</li>
+<li>M1 矩阵乘法算力约相当于 RTX 2060，估计算力 20-50 TH/s，日收入 $3-5</li>
+<li>目前没人成功验证过，需要 ARM64 重新编译</li>
+</ol>
+<hr>
+<h2 id="10-变现路径">10. 变现路径</h2>
+<p>PRL 目前<strong>唯一上线交易所</strong>：SafeTrade（https://safetrade.com）</p>
+<p>流程：</p>
+<ol>
+<li>注册 SafeTrade</li>
+<li>Pearl 钱包 → SafeTrade 的 PRL 充值地址</li>
+<li>卖 PRL → USDT</li>
+<li>USDT 提现到主流交易所 → 换成法币</li>
+</ol>
+<hr>
+<h2 id="11-矿池选择">11. 矿池选择</h2>
+<table>
+	<thead>
+			<tr>
+					<th>矿池</th>
+					<th>费率</th>
+					<th>全网算力</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>Pearlhash</td>
+					<td>3%</td>
+					<td>4.7 Eh/s</td>
+			</tr>
+			<tr>
+					<td>AlphaPool</td>
+					<td>5%</td>
+					<td>3.7 Eh/s</td>
+			</tr>
+			<tr>
+					<td>Luckypool</td>
+					<td>1%</td>
+					<td>762 Ph/s</td>
+			</tr>
+			<tr>
+					<td>akoya</td>
+					<td>5%</td>
+					<td>1.1 Eh/s</td>
+			</tr>
+			<tr>
+					<td>Himpool</td>
+					<td>2%</td>
+					<td>N/A</td>
+			</tr>
+	</tbody>
+</table>
+<hr>
+<h2 id="12-知识点速查">12. 知识点速查</h2>
+<table>
+	<thead>
+			<tr>
+					<th>问题</th>
+					<th>答案</th>
+			</tr>
+	</thead>
+	<tbody>
+			<tr>
+					<td>sm:120 是什么</td>
+					<td>Blackwell 架构（RTX 5090）的 CUDA 计算能力</td>
+			</tr>
+			<tr>
+					<td>Immature txs</td>
+					<td>等待 100 区块确认的奖励交易</td>
+			</tr>
+			<tr>
+					<td>出块固定吗</td>
+					<td>是，~112.8 秒一个块</td>
+			</tr>
+			<tr>
+					<td>中断后重连浪费吗</td>
+					<td>立刻重连不浪费，隔几小时回来会浪费</td>
+			</tr>
+			<tr>
+					<td>换地址余额丢了</td>
+					<td>不会丢，但旧地址不满 1 PRL 不会打款</td>
+			</tr>
+	</tbody>
+</table>
+<hr>
+<h2 id="附录矿工启动命令">附录：矿工启动命令</h2>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>wsl bash -c <span style="color:#e6db74">&#34;/mnt/c/Users/yicong/Downloads/pearl/pearl-miner-v7.exe --host 84.32.220.219:9000 --user 你的PRL地址&#34;</span>
+</span></span></code></pre></div>
+                    
+                    <HR width="100%" id="EOF">
+                    <p style="color:#777;">Last modified on 2026-05-30</p>
+                    
+                </div>
+            </div>
+            
+            
+            <nav class="post-pagination">
+
+                
+                <a class="newer-posts">
+                    Next<br>No newer posts.
+                </a>
+                
+                
+                
+                <a class="older-posts" href="https://zisen123.github.io/posts/pearl_wallet_sync_fix_notes/">
+                    Previous<br>Pearl Wallet 同步故障排查与修复笔记
+                </a>
+                
+            </nav>
+            <div class="post-comment-wrapper">
+                
+
+
+
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+            </div>
+<div id="single-column-footer">
+Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://amazingrise.net">Rise</a>
+<br>
+Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>
+<br>
+
+&copy;
+	
+	This is a customized copyright.
+	</div>
+    	</div>
+    <script src="https://zisen123.github.io//js/journal.js"></script>
+    </body>
+</html>
