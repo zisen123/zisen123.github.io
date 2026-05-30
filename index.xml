@@ -6,9 +6,147 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <copyright>This is a customized copyright.</copyright>
-    <lastBuildDate>Sat, 30 May 2020 12:07:09 +0800</lastBuildDate>
+    <lastBuildDate>Sat, 30 May 2026 16:12:11 +0800</lastBuildDate>
     
         <atom:link href="https://zisen123.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    
+        <item>
+        <title>Pearl Wallet 同步故障排查与修复笔记</title>
+        <link>https://zisen123.github.io/posts/pearl_wallet_sync_fix_notes/</link>
+        <pubDate>Sat, 30 May 2026 16:12:11 +0800</pubDate>
+        
+        <guid>https://zisen123.github.io/posts/pearl_wallet_sync_fix_notes/</guid>
+        <description>Spark https://zisen123.github.io/posts/pearl_wallet_sync_fix_notes/ -&lt;p&gt;本笔记详细记录了解决 Pearl Wallet (PRL) 桌面钱包卡在高度 1、无法连接节点进行同步，并最终成功在本地恢复显示钱包余额的完整折腾过程。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;1-问题背景与故障诊断&#34;&gt;1. 问题背景与故障诊断&lt;/h2&gt;
+&lt;h3 id=&#34;症状&#34;&gt;症状&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;现象&lt;/strong&gt;：Pearl Wallet 桌面钱包 (v1.0.0) 启动后，高度一直卡在 &lt;code&gt;1/1&lt;/code&gt;（或 &lt;code&gt;0&lt;/code&gt;），提示 &lt;code&gt;Lost peer&lt;/code&gt; 或 &lt;code&gt;EOF&lt;/code&gt;。无论等待多久，都无法同步区块，导致钱包余额无法显示（处于未同步的假空状态）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;原因排查&lt;/strong&gt;：
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;GFW 干扰&lt;/strong&gt;：国内直连节点可能存在丢包。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;握手 Bug（核心原因）&lt;/strong&gt;：官方 &lt;code&gt;v1.0.0&lt;/code&gt; 版本的客户端在向主网 DNS 种子节点进行网络握手时，错误地为不支持过滤的主网种子节点请求了紧凑过滤标志 (&lt;code&gt;HasFiltering&lt;/code&gt;)，导致主网远程节点在收到握手后&lt;strong&gt;瞬间主动断开连接&lt;/strong&gt; (&lt;code&gt;Lost peer&lt;/code&gt;)。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;解决思路&#34;&gt;解决思路&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;在海外 VPS 上，拉取官方最新的修复源码（已屏蔽 &lt;code&gt;HasFiltering&lt;/code&gt; bug），编译最新的运行程序。&lt;/li&gt;
+&lt;li&gt;用新程序在 VPS 上连接主网节点，快速同步区块头和 Neutrino 过滤器数据库。&lt;/li&gt;
+&lt;li&gt;从 VPS 导出一份包含“已连通健康节点”的 &lt;code&gt;peers.json&lt;/code&gt; 列表。&lt;/li&gt;
+&lt;li&gt;将同步好的区块头缓存、过滤器数据库和节点列表打包下载到本地钱包目录。&lt;/li&gt;
+&lt;li&gt;通过 Clash Verge 配置路由直连规则，保障钱包连接节点时不受代理网络波动干扰。&lt;/li&gt;
+&lt;li&gt;确认本地钱包正常显示余额后，完全清理 VPS 上的临时编译环境。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;2-折腾全过程详细记录&#34;&gt;2. 折腾全过程详细记录&lt;/h2&gt;
+&lt;h3 id=&#34;第一阶段vps-端编译最新-oyster-钱包&#34;&gt;第一阶段：VPS 端编译最新 Oyster 钱包&lt;/h3&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;重置环境&lt;/strong&gt;：VPS 重置为 Ubuntu 22.04 LTS。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;安装编译依赖&lt;/strong&gt;：
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;apt-get update
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;apt-get install -y git build-essential make golang rustc cargo curl
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;获取源码&lt;/strong&gt;：拉取最新的 &lt;code&gt;pearl&lt;/code&gt; 官方单体仓库，切换至主分支。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;本地编译&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;编译 ZK 零知识证明电路缓存、FFI 动态库以及 XMSS 签名 C 语言绑定。&lt;/li&gt;
+&lt;li&gt;成功构建原生 fixed &lt;code&gt;oyster&lt;/code&gt; 钱包命令行程序。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;blockquote&gt;
+&lt;p&gt;[!NOTE]
+编译 Rust ZK 电路时需要较大的内存。1G 物理内存的 VPS 在启用 1G Swap 虚拟内存后顺利完成了编译，未发生 OOM 崩溃。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;3-第二阶段vps-挂载同步与状态监控&#34;&gt;3. 第二阶段：VPS 挂载同步与状态监控&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;指定正常节点强制同步&lt;/strong&gt;：
+为避免受坏节点干扰，启动新编译的 &lt;code&gt;oyster&lt;/code&gt; 并显式添加多个已知可靠的海外主网节点 IP：
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;nohup ~/pearl-sync/oyster --usespv -u test -P test &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  --addpeer 104.199.167.233:44108 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  --addpeer 34.40.50.215:44108 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  --addpeer 35.223.185.30:44108 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  --addpeer 35.196.37.244:44108 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  --addpeer 34.83.190.251:44108 &lt;span style=&#34;color:#ae81ff&#34;&gt;\
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &amp;gt; ~/pearl-sync/oyster.log 2&amp;gt;&amp;amp;&lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt; &amp;amp;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;编写监控脚本&lt;/strong&gt;：
+通过 Python 监控脚本自动计算同步速度 (blocks/s) 和预计剩余时间 (ETA)。同步在约 15~30 blocks/s 的速度下运行，共计约 25 分钟同步完 6.4 万个区块。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;自动打包与停止&lt;/strong&gt;：
+高度追上主网 Tip 时，脚本自动停止 VPS 上的 &lt;code&gt;oyster&lt;/code&gt; 进程，并打包核心数据：
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;block_headers.bin&lt;/code&gt; (区块头数据)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;neutrino.db&lt;/code&gt; (BoltDB 过滤器数据库)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;reg_filter_headers.bin&lt;/code&gt; (过滤器头文件)&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;peers.json&lt;/code&gt; (节点拓扑信息)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;数据包名称&lt;/strong&gt;：&lt;code&gt;sync_cache.tar.gz&lt;/code&gt; (约 12MB)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;4-第三阶段本地数据灌入与-clash-verge-直连配置&#34;&gt;4. 第三阶段：本地数据灌入与 Clash Verge 直连配置&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;数据灌入&lt;/strong&gt;：
+数据包从 VPS 下载到本地 PC 路径：&lt;code&gt;C:\Users\&amp;lt;YourUsername&amp;gt;\.pearl-wallet\wallet-data\&amp;lt;YourWalletName&amp;gt;\mainnet&lt;/code&gt; 并解压。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;⚠️ &lt;strong&gt;特别注意&lt;/strong&gt;：本地 &lt;code&gt;wallet.db&lt;/code&gt;（钱包密钥数据库）保持完全不动，安全无损。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;code&gt;peers.json&lt;/code&gt; 替换的作用&lt;/strong&gt;：本地客户端直接获得了 VPS 筛选出的几千个健康节点 IP，启动时将不再尝试走报错的官方种子寻路，从而在本地绕过了官方握手 Bug，可实现永久增量自同步。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Clash Verge 直连规则优化&lt;/strong&gt;：
+为防止代理内核将主网 P2P 流量误判拦截或通过长链节点转发导致握手失败，在 Clash 配置文件 &lt;code&gt;rules:&lt;/code&gt; 的最顶部加入以下最高优先级规则：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-yaml&#34; data-lang=&#34;yaml&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;rules&lt;/span&gt;:
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# 1. 进程规则直连（Verge/Meta 内核支持）&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;PROCESS-NAME,oyster-windows-x64.exe,DIRECT&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;PROCESS-NAME,Pearl Wallet.exe,DIRECT&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# 2. 官方 DNS 种子域名直连&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;DOMAIN-SUFFIX,pearlresearch.ai,DIRECT&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#75715e&#34;&gt;# 3. 我们同步使用的多个高质量稳定节点 IP 直连&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;IP-CIDR,104.199.167.233/32,DIRECT,no-resolve&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;IP-CIDR,34.40.50.215/32,DIRECT,no-resolve&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;IP-CIDR,35.223.185.30/32,DIRECT,no-resolve&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;IP-CIDR,35.196.37.244/32,DIRECT,no-resolve&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    - &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#39;IP-CIDR,34.83.190.251/32,DIRECT,no-resolve&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;5-成果验证与-vps-无痕清理&#34;&gt;5. 成果验证与 VPS 无痕清理&lt;/h2&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;本地成果&lt;/strong&gt;：
+打开本地 Pearl Wallet，钱包加载后仅用几秒钟便同步完了最新的新产生区块，并顺利进入区块历史交易扫描，成功在钱包界面读出您的真实总余额：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;显示余额&lt;/strong&gt;：&lt;strong&gt;&lt;code&gt;&amp;lt;YOUR_BALANCE&amp;gt; PRL&lt;/code&gt;&lt;/strong&gt; 💎&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;VPS 环境彻底清理&lt;/strong&gt;：
+确认本地钱包恢复后，连接 VPS 运行清理脚本：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;停止任何残留进程。&lt;/li&gt;
+&lt;li&gt;彻底删除整个临时工作区（&lt;code&gt;~/pearl-src&lt;/code&gt;、&lt;code&gt;~/pearl-sync&lt;/code&gt;、&lt;code&gt;~/.cargo&lt;/code&gt;、&lt;code&gt;~/.rustup&lt;/code&gt;、&lt;code&gt;~/.oyster&lt;/code&gt;、&lt;code&gt;~/.go&lt;/code&gt;）。&lt;/li&gt;
+&lt;li&gt;卸载所安装的开发语言环境（&lt;code&gt;go&lt;/code&gt;、&lt;code&gt;rust&lt;/code&gt;、&lt;code&gt;gcc/g++&lt;/code&gt;、&lt;code&gt;make&lt;/code&gt;、&lt;code&gt;build-essential&lt;/code&gt;）。&lt;/li&gt;
+&lt;li&gt;释放了共计数百兆 of 磁盘空间，并将内存占用恢复至 0，VPS 重回零残留安全状态。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;6-经验与建议&#34;&gt;6. 经验与建议&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;不要删除本地 &lt;code&gt;wallet.db&lt;/code&gt;&lt;/strong&gt;：钱包同步不上去只是区块缓存和网络同步协议的问题，私钥依然安全地存在于本地 &lt;code&gt;wallet.db&lt;/code&gt; 中。遇到此类情况切记不要重装或删除数据库。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;利用 P2P peers 直连绕过 Bug&lt;/strong&gt;：当区块链软件客户端源码中写死的主种子发生握手 Bug 时，手动给软件注入一份已知可靠的 &lt;code&gt;peers.json&lt;/code&gt; 即可直接跳过主种子检索，是解决 P2P 客户端连不上网的通用解法。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;使用 Merge 模板保存 Clash Verge 规则&lt;/strong&gt;：在 Verge 中使用 Merge 模板注入直连规则，可以避免未来订阅更新时把手动改写的 rules 覆盖掉。&lt;/li&gt;
+&lt;/ul&gt;
+- https://zisen123.github.io/posts/pearl_wallet_sync_fix_notes/ - This is a customized copyright.</description>
+        </item>
     
     
     
@@ -19,115 +157,115 @@
         
         <guid>https://zisen123.github.io/posts/minecraft-classification/</guid>
         <description>Spark https://zisen123.github.io/posts/minecraft-classification/ -&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th align=&#34;center&#34;&gt;Category&lt;/th&gt;
-&lt;th align=&#34;center&#34;&gt;Blocks/Items&lt;/th&gt;
-&lt;th align=&#34;center&#34;&gt;Examples&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Natural&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Stuff you&amp;rsquo;d find in the natural world&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Sapling&#34;&gt;Saplings&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Cacti&#34;&gt;Cacti&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Tall_Grass&#34;&gt;Tall Grass&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Leaves&#34;&gt;Leaves&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Wood&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Anything that has something to do with wood&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Log&#34;&gt;Logs&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Plank&#34;&gt;Planks&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Stick&#34;&gt;Sticks&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Fence&#34;&gt;Fences&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Boat&#34;&gt;Boats&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Sign&#34;&gt;Signs&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Mob Drops&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Anything a mob might have dropped that is not a food or a potion ingredient&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Rotten_Flesh&#34;&gt;Rotten Flesh&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Egg&#34;&gt;Eggs&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Ender_Pearl&#34;&gt;Ender Pearls&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Feather&#34;&gt;Feathers&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Food&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Any type of food&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Porkchop&#34;&gt;Porkchops&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Beef&#34;&gt;Beef&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Chicken&#34;&gt;Chicken&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Bread&#34;&gt;Bread&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Carrot&#34;&gt;Carrots&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Stone&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Anything that has something to do with stone&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Stone&#34;&gt;Stone&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Cobblestone&#34;&gt;Cobblestone&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Granite&#34;&gt;Granite&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Obsidian&#34;&gt;Obsidian&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Colorful&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Anything that has &lt;a href=&#34;https://minecraft.gamepedia.com/Dye&#34;&gt;dye&lt;/a&gt;-color variants&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Wool&#34;&gt;Wool&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Terracotta&#34;&gt;Terracotta&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Dye&#34;&gt;Dyes&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Glass&#34;&gt;Glass&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Concrete&#34;&gt;Concrete&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Combat&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Any kind of weapon&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Armor&#34;&gt;Armor&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Sword&#34;&gt;Swords&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Bow&#34;&gt;Bow&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/TNT&#34;&gt;TNT&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Trident&#34;&gt;Trident&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Minerals&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Anything mined out of underground&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Coal&#34;&gt;Coal&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Iron&#34;&gt;Iron&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Gold&#34;&gt;Gold&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Diamonds&#34;&gt;Diamonds&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Tools&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;All tools that you have but do not need at the moment&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Hoe&#34;&gt;Hoe&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Shovel&#34;&gt;Shovel&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Fishing_Rod&#34;&gt;Fishing Rod&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Mining&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;All tools that you need when going mining&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Torch&#34;&gt;Torches&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Pickaxe&#34;&gt;Pickaxes&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Bucket&#34;&gt;Buckets&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Brewing&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Anything that has something to do with brewing/potions&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Potion&#34;&gt;Potions&lt;/a&gt;, potion ingredients, &lt;a href=&#34;https://minecraft.gamepedia.com/Cauldron&#34;&gt;Cauldrons&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Brewing_Stand&#34;&gt;Brewing Stands&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Nether&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;All blocks and items pertaining to the &lt;a href=&#34;https://minecraft.gamepedia.com/Nether&#34;&gt;Nether&lt;/a&gt; dimension, unless used for potions, in which those items would be in another category&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Netherrack&#34;&gt;Netherrack&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Nether_Bricks&#34;&gt;Nether Bricks&lt;/a&gt;, Nether Brick Stairs and Slabs, &lt;a href=&#34;https://minecraft.gamepedia.com/Gold_Nugget&#34;&gt;Gold Nuggets&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;End&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;All blocks and items pertaining to the &lt;a href=&#34;https://minecraft.gamepedia.com/End&#34;&gt;End&lt;/a&gt; dimension&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/End_Stone&#34;&gt;End Stone&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Chorus_Plant&#34;&gt;Chorus Plants&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Shulker_Box&#34;&gt;Shulker Boxes&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Mechanism&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Anything that has something to do with redstone&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Redstone&#34;&gt;Redstone&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Redstone_Torch&#34;&gt;Redstone Torches&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Redstone_Repeater&#34;&gt;Redstone Repeaters&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Piston&#34;&gt;Piston&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Miscellaneous&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;All other things that do not fit into any of the other categories&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Book&#34;&gt;Books&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Book_and_Quill&#34;&gt;Book and Quill&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Magic Items&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Items enchanted&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Enchanted_Book&#34;&gt;Enchanted Books&lt;/a&gt; for example.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Mass Junk&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;After a while, many players will accumulate several double chests each of other things&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Dirt&#34;&gt;Dirt&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Gravel&#34;&gt;Gravel&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Sand&#34;&gt;Sand&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Other Junk&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Stuff you will rarely need&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Damaged Armor, Tools, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Trophy Items&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;Items that are hard to obtain, rare items&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Dragon_Egg&#34;&gt;Dragon Egg&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Nether_Star&#34;&gt;Nether Star&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Heart_of_the_Sea&#34;&gt;Heart of the Sea&lt;/a&gt;, etc.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;strong&gt;Shared Stash&lt;/strong&gt;&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;You only need this chest if you are doing this on a multiplayer server where you are bunking with friends. This way, they will know if it is okay to borrow some dirt, or if all of your stuff has an invisible “&lt;em&gt;HANDS OFF!&lt;/em&gt;” sign on it.&lt;/td&gt;
-&lt;td align=&#34;center&#34;&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+	&lt;thead&gt;
+			&lt;tr&gt;
+					&lt;th style=&#34;text-align: center&#34;&gt;Category&lt;/th&gt;
+					&lt;th style=&#34;text-align: center&#34;&gt;Blocks/Items&lt;/th&gt;
+					&lt;th style=&#34;text-align: center&#34;&gt;Examples&lt;/th&gt;
+			&lt;/tr&gt;
+	&lt;/thead&gt;
+	&lt;tbody&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Natural&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Stuff you&amp;rsquo;d find in the natural world&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Sapling&#34;&gt;Saplings&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Cacti&#34;&gt;Cacti&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Tall_Grass&#34;&gt;Tall Grass&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Leaves&#34;&gt;Leaves&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Wood&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Anything that has something to do with wood&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Log&#34;&gt;Logs&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Plank&#34;&gt;Planks&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Stick&#34;&gt;Sticks&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Fence&#34;&gt;Fences&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Boat&#34;&gt;Boats&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Sign&#34;&gt;Signs&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Mob Drops&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Anything a mob might have dropped that is not a food or a potion ingredient&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Rotten_Flesh&#34;&gt;Rotten Flesh&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Egg&#34;&gt;Eggs&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Ender_Pearl&#34;&gt;Ender Pearls&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Feather&#34;&gt;Feathers&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Food&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Any type of food&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Porkchop&#34;&gt;Porkchops&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Beef&#34;&gt;Beef&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Chicken&#34;&gt;Chicken&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Bread&#34;&gt;Bread&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Carrot&#34;&gt;Carrots&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Stone&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Anything that has something to do with stone&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Stone&#34;&gt;Stone&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Cobblestone&#34;&gt;Cobblestone&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Granite&#34;&gt;Granite&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Obsidian&#34;&gt;Obsidian&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Colorful&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Anything that has &lt;a href=&#34;https://minecraft.gamepedia.com/Dye&#34;&gt;dye&lt;/a&gt;-color variants&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Wool&#34;&gt;Wool&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Terracotta&#34;&gt;Terracotta&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Dye&#34;&gt;Dyes&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Glass&#34;&gt;Glass&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Concrete&#34;&gt;Concrete&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Combat&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Any kind of weapon&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Armor&#34;&gt;Armor&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Sword&#34;&gt;Swords&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Bow&#34;&gt;Bow&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/TNT&#34;&gt;TNT&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Trident&#34;&gt;Trident&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Minerals&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Anything mined out of underground&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Coal&#34;&gt;Coal&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Iron&#34;&gt;Iron&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Gold&#34;&gt;Gold&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Diamonds&#34;&gt;Diamonds&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Tools&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;All tools that you have but do not need at the moment&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Hoe&#34;&gt;Hoe&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Shovel&#34;&gt;Shovel&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Fishing_Rod&#34;&gt;Fishing Rod&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Mining&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;All tools that you need when going mining&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Torch&#34;&gt;Torches&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Pickaxe&#34;&gt;Pickaxes&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Bucket&#34;&gt;Buckets&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Brewing&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Anything that has something to do with brewing/potions&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Potion&#34;&gt;Potions&lt;/a&gt;, potion ingredients, &lt;a href=&#34;https://minecraft.gamepedia.com/Cauldron&#34;&gt;Cauldrons&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Brewing_Stand&#34;&gt;Brewing Stands&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Nether&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;All blocks and items pertaining to the &lt;a href=&#34;https://minecraft.gamepedia.com/Nether&#34;&gt;Nether&lt;/a&gt; dimension, unless used for potions, in which those items would be in another category&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Netherrack&#34;&gt;Netherrack&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Nether_Bricks&#34;&gt;Nether Bricks&lt;/a&gt;, Nether Brick Stairs and Slabs, &lt;a href=&#34;https://minecraft.gamepedia.com/Gold_Nugget&#34;&gt;Gold Nuggets&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;End&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;All blocks and items pertaining to the &lt;a href=&#34;https://minecraft.gamepedia.com/End&#34;&gt;End&lt;/a&gt; dimension&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/End_Stone&#34;&gt;End Stone&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Chorus_Plant&#34;&gt;Chorus Plants&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Shulker_Box&#34;&gt;Shulker Boxes&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Mechanism&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Anything that has something to do with redstone&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Redstone&#34;&gt;Redstone&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Redstone_Torch&#34;&gt;Redstone Torches&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Redstone_Repeater&#34;&gt;Redstone Repeaters&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Piston&#34;&gt;Piston&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Miscellaneous&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;All other things that do not fit into any of the other categories&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Book&#34;&gt;Books&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Book_and_Quill&#34;&gt;Book and Quill&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Magic Items&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Items enchanted&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Enchanted_Book&#34;&gt;Enchanted Books&lt;/a&gt; for example.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Mass Junk&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;After a while, many players will accumulate several double chests each of other things&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Dirt&#34;&gt;Dirt&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Gravel&#34;&gt;Gravel&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Sand&#34;&gt;Sand&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Other Junk&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Stuff you will rarely need&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Damaged Armor, Tools, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Trophy Items&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;Items that are hard to obtain, rare items&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;a href=&#34;https://minecraft.gamepedia.com/Dragon_Egg&#34;&gt;Dragon Egg&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Nether_Star&#34;&gt;Nether Star&lt;/a&gt;, &lt;a href=&#34;https://minecraft.gamepedia.com/Heart_of_the_Sea&#34;&gt;Heart of the Sea&lt;/a&gt;, etc.&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;strong&gt;Shared Stash&lt;/strong&gt;&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;You only need this chest if you are doing this on a multiplayer server where you are bunking with friends. This way, they will know if it is okay to borrow some dirt, or if all of your stuff has an invisible “&lt;em&gt;HANDS OFF!&lt;/em&gt;” sign on it.&lt;/td&gt;
+					&lt;td style=&#34;text-align: center&#34;&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+	&lt;/tbody&gt;
 &lt;/table&gt;
 - https://zisen123.github.io/posts/minecraft-classification/ - This is a customized copyright.</description>
         </item>
@@ -141,185 +279,185 @@
         
         <guid>https://zisen123.github.io/posts/minecraft-price-list/</guid>
         <description>Spark https://zisen123.github.io/posts/minecraft-price-list/ -&lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;Item&lt;/th&gt;
-&lt;th&gt;Price&lt;/th&gt;
-&lt;th&gt;Reprice(Recycle Price)&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;strong&gt;Crops&lt;/strong&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;potato&lt;/td&gt;
-&lt;td&gt;26&lt;/td&gt;
-&lt;td&gt;31&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;wheat&lt;/td&gt;
-&lt;td&gt;20&lt;/td&gt;
-&lt;td&gt;24&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;carrot&lt;/td&gt;
-&lt;td&gt;22&lt;/td&gt;
-&lt;td&gt;26&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;beetroot&lt;/td&gt;
-&lt;td&gt;15&lt;/td&gt;
-&lt;td&gt;18&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;pumpkin&lt;/td&gt;
-&lt;td&gt;6&lt;/td&gt;
-&lt;td&gt;7&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;melon slice&lt;/td&gt;
-&lt;td&gt;4&lt;/td&gt;
-&lt;td&gt;5&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;dried kelp block&lt;/td&gt;
-&lt;td&gt;18&lt;/td&gt;
-&lt;td&gt;22&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;sweet berries&lt;/td&gt;
-&lt;td&gt;10&lt;/td&gt;
-&lt;td&gt;12&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;strong&gt;Animal Products&lt;/strong&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;egg&lt;/td&gt;
-&lt;td&gt;16&lt;/td&gt;
-&lt;td&gt;20&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;raw beef&lt;/td&gt;
-&lt;td&gt;10&lt;/td&gt;
-&lt;td&gt;12&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;raw mutton&lt;/td&gt;
-&lt;td&gt;8&lt;/td&gt;
-&lt;td&gt;10&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;raw chicken&lt;/td&gt;
-&lt;td&gt;14&lt;/td&gt;
-&lt;td&gt;17&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;raw rabbit&lt;/td&gt;
-&lt;td&gt;4&lt;/td&gt;
-&lt;td&gt;5&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;raw porkchop&lt;/td&gt;
-&lt;td&gt;7&lt;/td&gt;
-&lt;td&gt;8&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;strong&gt;Aquatic Products&lt;/strong&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;raw cod&lt;/td&gt;
-&lt;td&gt;15&lt;/td&gt;
-&lt;td&gt;18&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;raw salmon&lt;/td&gt;
-&lt;td&gt;13&lt;/td&gt;
-&lt;td&gt;16&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;tropical fish&lt;/td&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;td&gt;2&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;pufferfish&lt;/td&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;td&gt;2&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+	&lt;thead&gt;
+			&lt;tr&gt;
+					&lt;th&gt;Item&lt;/th&gt;
+					&lt;th&gt;Price&lt;/th&gt;
+					&lt;th&gt;Reprice(Recycle Price)&lt;/th&gt;
+			&lt;/tr&gt;
+	&lt;/thead&gt;
+	&lt;tbody&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;strong&gt;Crops&lt;/strong&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;potato&lt;/td&gt;
+					&lt;td&gt;26&lt;/td&gt;
+					&lt;td&gt;31&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;wheat&lt;/td&gt;
+					&lt;td&gt;20&lt;/td&gt;
+					&lt;td&gt;24&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;carrot&lt;/td&gt;
+					&lt;td&gt;22&lt;/td&gt;
+					&lt;td&gt;26&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;beetroot&lt;/td&gt;
+					&lt;td&gt;15&lt;/td&gt;
+					&lt;td&gt;18&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;pumpkin&lt;/td&gt;
+					&lt;td&gt;6&lt;/td&gt;
+					&lt;td&gt;7&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;melon slice&lt;/td&gt;
+					&lt;td&gt;4&lt;/td&gt;
+					&lt;td&gt;5&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;dried kelp block&lt;/td&gt;
+					&lt;td&gt;18&lt;/td&gt;
+					&lt;td&gt;22&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;sweet berries&lt;/td&gt;
+					&lt;td&gt;10&lt;/td&gt;
+					&lt;td&gt;12&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;strong&gt;Animal Products&lt;/strong&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;egg&lt;/td&gt;
+					&lt;td&gt;16&lt;/td&gt;
+					&lt;td&gt;20&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;raw beef&lt;/td&gt;
+					&lt;td&gt;10&lt;/td&gt;
+					&lt;td&gt;12&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;raw mutton&lt;/td&gt;
+					&lt;td&gt;8&lt;/td&gt;
+					&lt;td&gt;10&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;raw chicken&lt;/td&gt;
+					&lt;td&gt;14&lt;/td&gt;
+					&lt;td&gt;17&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;raw rabbit&lt;/td&gt;
+					&lt;td&gt;4&lt;/td&gt;
+					&lt;td&gt;5&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;raw porkchop&lt;/td&gt;
+					&lt;td&gt;7&lt;/td&gt;
+					&lt;td&gt;8&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;strong&gt;Aquatic Products&lt;/strong&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;raw cod&lt;/td&gt;
+					&lt;td&gt;15&lt;/td&gt;
+					&lt;td&gt;18&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;raw salmon&lt;/td&gt;
+					&lt;td&gt;13&lt;/td&gt;
+					&lt;td&gt;16&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;tropical fish&lt;/td&gt;
+					&lt;td&gt;1&lt;/td&gt;
+					&lt;td&gt;2&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;pufferfish&lt;/td&gt;
+					&lt;td&gt;1&lt;/td&gt;
+					&lt;td&gt;2&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+	&lt;/tbody&gt;
 &lt;/table&gt;
 - https://zisen123.github.io/posts/minecraft-price-list/ - This is a customized copyright.</description>
         </item>
@@ -373,67 +511,67 @@
         <pubDate>Fri, 01 May 2020 00:12:00 +0800</pubDate>
         
         <guid>https://zisen123.github.io/posts/css_colorful_button/</guid>
-        <description>Spark https://zisen123.github.io/posts/css_colorful_button/ -&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-html&#34; data-lang=&#34;html&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!DOCTYPE html&amp;gt;&lt;/span&gt;
-&lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!--from https://www.bilibili.com/video/BV1cK4y1k7qGs--&amp;gt;&lt;/span&gt;
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;html&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;lang&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;en&amp;#34;&lt;/span&gt;&amp;gt;
-  &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;head&lt;/span&gt;&amp;gt;
-    &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;meta&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;charset&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;UTF-8&amp;#34;&lt;/span&gt;&amp;gt;
-    &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;meta&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;viewport&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;content&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;width=divice-width, initial-scale=1.0&amp;#34;&lt;/span&gt;&amp;gt;
-    &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;title&lt;/span&gt;&amp;gt;Colorful Button&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;title&lt;/span&gt;&amp;gt;
-  &amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;head&lt;/span&gt;&amp;gt;
-  &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;body&lt;/span&gt;&amp;gt;
-    &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;href&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;javascript:;&amp;#34;&lt;/span&gt;&amp;gt;Colorful Button&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;a&lt;/span&gt;&amp;gt;
-  &amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;body&lt;/span&gt;&amp;gt;
-  &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;style&lt;/span&gt;&amp;gt;
-    &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;{
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;margin&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;padding&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
-    }
-    &lt;span style=&#34;color:#f92672&#34;&gt;body&lt;/span&gt;{
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;background&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;#000&lt;/span&gt;;
-    }
-    &lt;span style=&#34;color:#f92672&#34;&gt;a&lt;/span&gt;{
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;text-decoration&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;none&lt;/span&gt;;&lt;span style=&#34;color:#75715e&#34;&gt;/*why set text-decoration as none?*/&lt;/span&gt;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;position&lt;/span&gt;:&lt;span style=&#34;color:#66d9ef&#34;&gt;absolute&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;top&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;left&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;transform&lt;/span&gt;: translate(&lt;span style=&#34;color:#ae81ff&#34;&gt;-50&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;-50&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt;);&lt;span style=&#34;color:#75715e&#34;&gt;/*translate the button self*/&lt;/span&gt;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;font-size&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;24&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;background&lt;/span&gt;: linear-gradient(&lt;span style=&#34;color:#ae81ff&#34;&gt;90&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;deg&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#03a9f4&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#f441a5&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#ffeb3b&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#03a9f4&lt;/span&gt;);
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;background-size&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;400&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;width&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;400&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;height&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;line-height&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;&lt;span style=&#34;color:#75715e&#34;&gt;/*this means the height the text self */&lt;/span&gt;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;text-align&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;center&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;color&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;#fff&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;text-transform&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;capitalize&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;border-radius&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;&lt;span style=&#34;color:#75715e&#34;&gt;/*make the profile round*/&lt;/span&gt;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;z-index&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
-    }
-    &lt;span style=&#34;color:#f92672&#34;&gt;a&lt;/span&gt;::&lt;span style=&#34;color:#a6e22e&#34;&gt;before&lt;/span&gt;{
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;content&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;position&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;absolute&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;left&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;-5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;top&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;-5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;right&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;-5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;bottom&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;-5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;background&lt;/span&gt;: linear-gradient(&lt;span style=&#34;color:#ae81ff&#34;&gt;90&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;deg&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#03a9f4&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#f441a5&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#ffeb3b&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#03a9f4&lt;/span&gt;);
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;background-size&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;400&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;border-radius&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;filter&lt;/span&gt;: blur(&lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;);
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;z-index&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;-1&lt;/span&gt;;
-    }
-    &lt;span style=&#34;color:#f92672&#34;&gt;a&lt;/span&gt;:&lt;span style=&#34;color:#a6e22e&#34;&gt;hover&lt;/span&gt;::&lt;span style=&#34;color:#a6e22e&#34;&gt;before&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;a&lt;/span&gt;:&lt;span style=&#34;color:#a6e22e&#34;&gt;hover&lt;/span&gt;{
-      &lt;span style=&#34;color:#66d9ef&#34;&gt;animation&lt;/span&gt;: sun &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;s&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;infinite&lt;/span&gt;;
-    }
-    @&lt;span style=&#34;color:#66d9ef&#34;&gt;keyframes&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;sun&lt;/span&gt;{
-      &lt;span style=&#34;color:#f92672&#34;&gt;100&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;%&lt;/span&gt;{
-          &lt;span style=&#34;color:#66d9ef&#34;&gt;background-position&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;-400&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
-      }
-    }
-  &amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;style&lt;/span&gt;&amp;gt;
-&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;html&lt;/span&gt;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;linkhttpsgithubcomzisen123css-leanerblobmastercss20colorful20buttoncolorful20buttonhtmlhttpsgithubcomzisen123css-leanerblobmastercss20colorful20buttoncolorful20buttonhtml&#34;&gt;&lt;a href=&#34;%5Bhttps://github.com/zisen123/CSS-leaner/blob/master/CSS%20Colorful%20Button/Colorful%20Button.html%5D(https://github.com/zisen123/CSS-leaner/blob/master/CSS%20Colorful%20Button/Colorful%20Button.html)&#34;&gt;link&lt;/a&gt;&lt;/h2&gt;
+        <description>Spark https://zisen123.github.io/posts/css_colorful_button/ -&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-html&#34; data-lang=&#34;html&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!DOCTYPE html&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!--from https://www.bilibili.com/video/BV1cK4y1k7qGs--&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;html&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;lang&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;en&amp;#34;&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;head&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;meta&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;charset&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;UTF-8&amp;#34;&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;meta&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;name&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;viewport&amp;#34;&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;content&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;width=divice-width, initial-scale=1.0&amp;#34;&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;title&lt;/span&gt;&amp;gt;Colorful Button&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;title&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;head&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;body&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;a&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;href&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;javascript:;&amp;#34;&lt;/span&gt;&amp;gt;Colorful Button&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;a&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;body&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;style&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;*&lt;/span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;margin&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;padding&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;body&lt;/span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;background&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;#000&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;a&lt;/span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;text-decoration&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;none&lt;/span&gt;;&lt;span style=&#34;color:#75715e&#34;&gt;/*why set text-decoration as none?*/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;position&lt;/span&gt;:&lt;span style=&#34;color:#66d9ef&#34;&gt;absolute&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;top&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;left&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;transform&lt;/span&gt;: translate(&lt;span style=&#34;color:#ae81ff&#34;&gt;-50&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;-50&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt;);&lt;span style=&#34;color:#75715e&#34;&gt;/*translate the button self*/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;font-size&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;24&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;background&lt;/span&gt;: linear-gradient(&lt;span style=&#34;color:#ae81ff&#34;&gt;90&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;deg&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#03a9f4&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#f441a5&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#ffeb3b&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#03a9f4&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;background-size&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;400&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;width&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;400&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;height&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;line-height&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;100&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;&lt;span style=&#34;color:#75715e&#34;&gt;/*this means the height the text self */&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;text-align&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;center&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;color&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;#fff&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;text-transform&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;capitalize&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;border-radius&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;&lt;span style=&#34;color:#75715e&#34;&gt;/*make the profile round*/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;z-index&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;a&lt;/span&gt;::&lt;span style=&#34;color:#a6e22e&#34;&gt;before&lt;/span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;content&lt;/span&gt;: &lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;&amp;#34;&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;position&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;absolute&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;left&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;-5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;top&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;-5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;right&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;-5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;bottom&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;-5&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;background&lt;/span&gt;: linear-gradient(&lt;span style=&#34;color:#ae81ff&#34;&gt;90&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;deg&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#03a9f4&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#f441a5&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#ffeb3b&lt;/span&gt;, &lt;span style=&#34;color:#ae81ff&#34;&gt;#03a9f4&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;background-size&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;400&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;border-radius&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;50&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;filter&lt;/span&gt;: blur(&lt;span style=&#34;color:#ae81ff&#34;&gt;20&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;px&lt;/span&gt;);
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;z-index&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;-1&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    &lt;span style=&#34;color:#f92672&#34;&gt;a&lt;/span&gt;:&lt;span style=&#34;color:#a6e22e&#34;&gt;hover&lt;/span&gt;::&lt;span style=&#34;color:#a6e22e&#34;&gt;before&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;,&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;a&lt;/span&gt;:&lt;span style=&#34;color:#a6e22e&#34;&gt;hover&lt;/span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#66d9ef&#34;&gt;animation&lt;/span&gt;: sun &lt;span style=&#34;color:#ae81ff&#34;&gt;8&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;s&lt;/span&gt; &lt;span style=&#34;color:#66d9ef&#34;&gt;infinite&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    @&lt;span style=&#34;color:#66d9ef&#34;&gt;keyframes&lt;/span&gt; &lt;span style=&#34;color:#f92672&#34;&gt;sun&lt;/span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      &lt;span style=&#34;color:#f92672&#34;&gt;100&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;%&lt;/span&gt;{
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;          &lt;span style=&#34;color:#66d9ef&#34;&gt;background-position&lt;/span&gt;: &lt;span style=&#34;color:#ae81ff&#34;&gt;-400&lt;/span&gt;&lt;span style=&#34;color:#66d9ef&#34;&gt;%&lt;/span&gt; &lt;span style=&#34;color:#ae81ff&#34;&gt;0&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;      }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;    }
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;style&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;html&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;h2 id=&#34;link&#34;&gt;&lt;a href=&#34;%5Bhttps://github.com/zisen123/CSS-leaner/blob/master/CSS%20Colorful%20Button/Colorful%20Button.html%5D(https://github.com/zisen123/CSS-leaner/blob/master/CSS%20Colorful%20Button/Colorful%20Button.html)&#34;&gt;link&lt;/a&gt;&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;https://mclist.monster/colorful_button.html&#34;&gt;demo&lt;/a&gt;&lt;/p&gt;
 - https://zisen123.github.io/posts/css_colorful_button/ - This is a customized copyright.</description>
         </item>
@@ -448,9 +586,9 @@
         <guid>https://zisen123.github.io/posts/keep-ssh-online/</guid>
         <description>Spark https://zisen123.github.io/posts/keep-ssh-online/ -&lt;p&gt;參見: &lt;a href=&#34;https://blog.phpgao.com/keep_connect_ssh.html&#34;&gt;https://blog.phpgao.com/keep_connect_ssh.html&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;ssh連接到服務器, 修改&lt;code&gt;sshd_config&lt;/code&gt;文件&lt;/p&gt;
-&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;sudo vim /etc/ssh/sshd_config
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;加入以下兩行&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;ClientAliveInterval 30 #每30s發送一次心跳包給客戶端
+&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-bash&#34; data-lang=&#34;bash&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;sudo vim /etc/ssh/sshd_config
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;加入以下兩行&lt;/p&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;ClientAliveInterval 30 #每30s發送一次心跳包給客戶端
 ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;修改本機&lt;code&gt;sshd_config&lt;/code&gt;文件, 方法和代碼同上.&lt;/p&gt;
 - https://zisen123.github.io/posts/keep-ssh-online/ - This is a customized copyright.</description>
@@ -464,36 +602,36 @@ ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接
         <pubDate>Wed, 29 Apr 2020 00:00:00 +0000</pubDate>
         
         <guid>https://zisen123.github.io/posts/css_-writing-mode/</guid>
-        <description>Spark https://zisen123.github.io/posts/css_-writing-mode/ -&lt;div class=&#34;highlight&#34;&gt;&lt;pre style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4&#34;&gt;&lt;code class=&#34;language-html&#34; data-lang=&#34;html&#34;&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!DOCTYPE html&amp;gt;&lt;/span&gt;
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;html&lt;/span&gt;&amp;gt;
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;head&lt;/span&gt;&amp;gt;
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;style&lt;/span&gt;&amp;gt; 
-&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;test1&lt;/span&gt; {
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;writing-mode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;horizontal&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;tb; 
-}
-
-&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;test2&lt;/span&gt; {
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;writing-mode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;vertical&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;rl; 
-}
-
-&lt;span style=&#34;color:#f92672&#34;&gt;span&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;test2&lt;/span&gt; {
-  &lt;span style=&#34;color:#66d9ef&#34;&gt;writing-mode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;vertical&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;rl; 
-}
-&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;style&lt;/span&gt;&amp;gt;
-&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;head&lt;/span&gt;&amp;gt;
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;body&lt;/span&gt;&amp;gt;
-
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;h1&lt;/span&gt;&amp;gt;The writing-mode Property&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;h1&lt;/span&gt;&amp;gt;
-
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;class&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;test1&amp;#34;&lt;/span&gt;&amp;gt;Some text with default writing-mode.&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
-
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;Some text with a span element with a &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;span&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;class&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;test2&amp;#34;&lt;/span&gt;&amp;gt;vertical-rl&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;span&lt;/span&gt;&amp;gt; writing-mode.&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
-
-&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;class&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;test2&amp;#34;&lt;/span&gt;&amp;gt;Some text with writing-mode: vertical-rl.&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
-
-&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;body&lt;/span&gt;&amp;gt;
-&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;html&lt;/span&gt;&amp;gt;
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;a href=&#34;https://www.w3schools.com/cssref/css3_pr_writing-mode.asp&#34;&gt;link&lt;/a&gt;&lt;/p&gt;
+        <description>Spark https://zisen123.github.io/posts/css_-writing-mode/ -&lt;div class=&#34;highlight&#34;&gt;&lt;pre tabindex=&#34;0&#34; style=&#34;color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;&#34;&gt;&lt;code class=&#34;language-html&#34; data-lang=&#34;html&#34;&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#75715e&#34;&gt;&amp;lt;!DOCTYPE html&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;html&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;head&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;style&lt;/span&gt;&amp;gt; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;test1&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;writing-mode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;horizontal&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;tb; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;test2&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;writing-mode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;vertical&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;rl; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;span&lt;/span&gt;.&lt;span style=&#34;color:#a6e22e&#34;&gt;test2&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;  &lt;span style=&#34;color:#66d9ef&#34;&gt;writing-mode&lt;/span&gt;: &lt;span style=&#34;color:#66d9ef&#34;&gt;vertical&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;-&lt;/span&gt;rl; 
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;}
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;style&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;head&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;body&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;h1&lt;/span&gt;&amp;gt;The writing-mode Property&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;h1&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;class&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;test1&amp;#34;&lt;/span&gt;&amp;gt;Some text with default writing-mode.&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;Some text with a span element with a &amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;span&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;class&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;test2&amp;#34;&lt;/span&gt;&amp;gt;vertical-rl&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;span&lt;/span&gt;&amp;gt; writing-mode.&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt; &lt;span style=&#34;color:#a6e22e&#34;&gt;class&lt;/span&gt;&lt;span style=&#34;color:#f92672&#34;&gt;=&lt;/span&gt;&lt;span style=&#34;color:#e6db74&#34;&gt;&amp;#34;test2&amp;#34;&lt;/span&gt;&amp;gt;Some text with writing-mode: vertical-rl.&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;p&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;body&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span style=&#34;display:flex;&#34;&gt;&lt;span&gt;&amp;lt;/&lt;span style=&#34;color:#f92672&#34;&gt;html&lt;/span&gt;&amp;gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;p&gt;&lt;a href=&#34;https://www.w3schools.com/cssref/css3_pr_writing-mode.asp&#34;&gt;link&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://www.w3schools.com/cssref/tryit.asp?filename=trycss3_writing-mode&#34;&gt;demo&lt;/a&gt;&lt;/p&gt;
 - https://zisen123.github.io/posts/css_-writing-mode/ - This is a customized copyright.</description>
         </item>
@@ -509,30 +647,30 @@ ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接
         <description>Spark https://zisen123.github.io/posts/%E5%85%89%E7%94%B5%E6%95%88%E5%BA%94-%E6%AD%A6%E6%B1%89%E5%A4%A7%E5%AD%A6%E7%89%A9%E7%90%86%E7%A7%91%E5%AD%A6%E4%B8%8E%E6%8A%80%E6%9C%AF%E5%AD%A6%E9%99%A2-%E7%89%A9%E7%90%86%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A/ -&lt;h1 id=&#34;武汉大学物理科学与技术学院-物理实验报告&#34;&gt;武汉大学物理科学与技术学院 物理实验报告&lt;/h1&gt;
 &lt;p&gt;物理科学与技术学院 物理学专业 2020年4月22日&lt;/p&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;实验名称&lt;/th&gt;
-&lt;th&gt;光电效应&lt;/th&gt;
-&lt;th&gt;&lt;/th&gt;
-&lt;th&gt;&lt;/th&gt;
-&lt;th&gt;&lt;/th&gt;
-&lt;th&gt;&lt;/th&gt;
-&lt;th&gt;&lt;/th&gt;
-&lt;th&gt;&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;姓名&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;年级&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;学号&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;td&gt;成绩&lt;/td&gt;
-&lt;td&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+	&lt;thead&gt;
+			&lt;tr&gt;
+					&lt;th&gt;实验名称&lt;/th&gt;
+					&lt;th&gt;光电效应&lt;/th&gt;
+					&lt;th&gt;&lt;/th&gt;
+					&lt;th&gt;&lt;/th&gt;
+					&lt;th&gt;&lt;/th&gt;
+					&lt;th&gt;&lt;/th&gt;
+					&lt;th&gt;&lt;/th&gt;
+					&lt;th&gt;&lt;/th&gt;
+			&lt;/tr&gt;
+	&lt;/thead&gt;
+	&lt;tbody&gt;
+			&lt;tr&gt;
+					&lt;td&gt;姓名&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;年级&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;学号&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+					&lt;td&gt;成绩&lt;/td&gt;
+					&lt;td&gt;&lt;/td&gt;
+			&lt;/tr&gt;
+	&lt;/tbody&gt;
 &lt;/table&gt;
 &lt;h2 id=&#34;实验报告内容&#34;&gt;实验报告内容&lt;/h2&gt;
 &lt;p&gt;一、&lt;a href=&#34;#%E5%AE%9E%E9%AA%8C%E7%9B%AE%E7%9A%84&#34;&gt;实验目的&lt;/a&gt;&lt;/p&gt;
@@ -582,7 +720,7 @@ ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接
 (2)中$U_0$为截止电压, 也就是抵消电子初始动能所需的电能, 即截止电压$U_0$与入射光频率$\nu$为线性关系, 由实验可以确定该函数的斜率, 进而求出普朗克常数$h$.&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
-&lt;p&gt;当频率一定时, 入射光强$P$越大, 光子数目越多, 产生的光电子数目也就越多, 饱和光电流强度就越大. 
+&lt;p&gt;当频率一定时, 入射光强$P$越大, 光子数目越多, 产生的光电子数目也就越多, 饱和光电流强度就越大.
 &lt;strong&gt;在同一频率下,饱和光电流强度$I_m$正比于入射光强$P$.&lt;/strong&gt;&lt;/p&gt;
 &lt;/li&gt;
 &lt;li&gt;
@@ -611,34 +749,34 @@ ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接
 &lt;li&gt;$U_0 - v$ 关系表， 光阑孔 $\phi = 4mm$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;波长 $\gamma$ (nm)&lt;/th&gt;
-&lt;th&gt;365.0&lt;/th&gt;
-&lt;th&gt;404.7&lt;/th&gt;
-&lt;th&gt;435.8&lt;/th&gt;
-&lt;th&gt;546.1&lt;/th&gt;
-&lt;th&gt;577.0&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;频率 $\nu (\times 10^{14})$&lt;/td&gt;
-&lt;td&gt;8.214&lt;/td&gt;
-&lt;td&gt;7.407&lt;/td&gt;
-&lt;td&gt;6.879&lt;/td&gt;
-&lt;td&gt;5.490&lt;/td&gt;
-&lt;td&gt;5.196&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;截止电压 $U_0(V)$&lt;/td&gt;
-&lt;td&gt;1.678&lt;/td&gt;
-&lt;td&gt;1.338&lt;/td&gt;
-&lt;td&gt;1.114&lt;/td&gt;
-&lt;td&gt;0.558&lt;/td&gt;
-&lt;td&gt;0.438&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+	&lt;thead&gt;
+			&lt;tr&gt;
+					&lt;th&gt;波长 $\gamma$ (nm)&lt;/th&gt;
+					&lt;th&gt;365.0&lt;/th&gt;
+					&lt;th&gt;404.7&lt;/th&gt;
+					&lt;th&gt;435.8&lt;/th&gt;
+					&lt;th&gt;546.1&lt;/th&gt;
+					&lt;th&gt;577.0&lt;/th&gt;
+			&lt;/tr&gt;
+	&lt;/thead&gt;
+	&lt;tbody&gt;
+			&lt;tr&gt;
+					&lt;td&gt;频率 $\nu (\times 10^{14})$&lt;/td&gt;
+					&lt;td&gt;8.214&lt;/td&gt;
+					&lt;td&gt;7.407&lt;/td&gt;
+					&lt;td&gt;6.879&lt;/td&gt;
+					&lt;td&gt;5.490&lt;/td&gt;
+					&lt;td&gt;5.196&lt;/td&gt;
+			&lt;/tr&gt;
+			&lt;tr&gt;
+					&lt;td&gt;截止电压 $U_0(V)$&lt;/td&gt;
+					&lt;td&gt;1.678&lt;/td&gt;
+					&lt;td&gt;1.338&lt;/td&gt;
+					&lt;td&gt;1.114&lt;/td&gt;
+					&lt;td&gt;0.558&lt;/td&gt;
+					&lt;td&gt;0.438&lt;/td&gt;
+			&lt;/tr&gt;
+	&lt;/tbody&gt;
 &lt;/table&gt;
 &lt;ol start=&#34;3&#34;&gt;
 &lt;li&gt;测光电管的伏安特性曲线（ $I\sim U_{AK}$ 曲线）&lt;/li&gt;
@@ -658,74 +796,74 @@ ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接
 &lt;/li&gt;
 &lt;/ul&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;$U_{AK}(V)$&lt;/th&gt;
-&lt;th&gt;1&lt;/th&gt;
-&lt;th&gt;5&lt;/th&gt;
-&lt;th&gt;10&lt;/th&gt;
-&lt;th&gt;15&lt;/th&gt;
-&lt;th&gt;20&lt;/th&gt;
-&lt;th&gt;25&lt;/th&gt;
-&lt;th&gt;30&lt;/th&gt;
-&lt;th&gt;35&lt;/th&gt;
-&lt;th&gt;40&lt;/th&gt;
-&lt;th&gt;45&lt;/th&gt;
-&lt;th&gt;50&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;$I(\times 10^{-9}A)$&lt;/td&gt;
-&lt;td&gt;0.74&lt;/td&gt;
-&lt;td&gt;2.31&lt;/td&gt;
-&lt;td&gt;3.85&lt;/td&gt;
-&lt;td&gt;5.02&lt;/td&gt;
-&lt;td&gt;5.91&lt;/td&gt;
-&lt;td&gt;6.59&lt;/td&gt;
-&lt;td&gt;7.1&lt;/td&gt;
-&lt;td&gt;7.5&lt;/td&gt;
-&lt;td&gt;7.79&lt;/td&gt;
-&lt;td&gt;8.02&lt;/td&gt;
-&lt;td&gt;8.19&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+	&lt;thead&gt;
+			&lt;tr&gt;
+					&lt;th&gt;$U_{AK}(V)$&lt;/th&gt;
+					&lt;th&gt;1&lt;/th&gt;
+					&lt;th&gt;5&lt;/th&gt;
+					&lt;th&gt;10&lt;/th&gt;
+					&lt;th&gt;15&lt;/th&gt;
+					&lt;th&gt;20&lt;/th&gt;
+					&lt;th&gt;25&lt;/th&gt;
+					&lt;th&gt;30&lt;/th&gt;
+					&lt;th&gt;35&lt;/th&gt;
+					&lt;th&gt;40&lt;/th&gt;
+					&lt;th&gt;45&lt;/th&gt;
+					&lt;th&gt;50&lt;/th&gt;
+			&lt;/tr&gt;
+	&lt;/thead&gt;
+	&lt;tbody&gt;
+			&lt;tr&gt;
+					&lt;td&gt;$I(\times 10^{-9}A)$&lt;/td&gt;
+					&lt;td&gt;0.74&lt;/td&gt;
+					&lt;td&gt;2.31&lt;/td&gt;
+					&lt;td&gt;3.85&lt;/td&gt;
+					&lt;td&gt;5.02&lt;/td&gt;
+					&lt;td&gt;5.91&lt;/td&gt;
+					&lt;td&gt;6.59&lt;/td&gt;
+					&lt;td&gt;7.1&lt;/td&gt;
+					&lt;td&gt;7.5&lt;/td&gt;
+					&lt;td&gt;7.79&lt;/td&gt;
+					&lt;td&gt;8.02&lt;/td&gt;
+					&lt;td&gt;8.19&lt;/td&gt;
+			&lt;/tr&gt;
+	&lt;/tbody&gt;
 &lt;/table&gt;
 &lt;p&gt;            2. 重新调零， 换上直径为4mm的光阑， 仍用波长435.8nm的滤光片重复步骤1.&lt;/p&gt;
 &lt;p&gt;               $I - U_{AK}$ 关系表， $\nu = 435.8nm$ , 光阑孔 $\phi=4mm$&lt;/p&gt;
 &lt;table&gt;
-&lt;thead&gt;
-&lt;tr&gt;
-&lt;th&gt;$U_{AK}(V)$&lt;/th&gt;
-&lt;th&gt;1&lt;/th&gt;
-&lt;th&gt;5&lt;/th&gt;
-&lt;th&gt;10&lt;/th&gt;
-&lt;th&gt;15&lt;/th&gt;
-&lt;th&gt;20&lt;/th&gt;
-&lt;th&gt;25&lt;/th&gt;
-&lt;th&gt;30&lt;/th&gt;
-&lt;th&gt;35&lt;/th&gt;
-&lt;th&gt;40&lt;/th&gt;
-&lt;th&gt;45&lt;/th&gt;
-&lt;th&gt;50&lt;/th&gt;
-&lt;/tr&gt;
-&lt;/thead&gt;
-&lt;tbody&gt;
-&lt;tr&gt;
-&lt;td&gt;$I(\times 10^{-9}A)$&lt;/td&gt;
-&lt;td&gt;2.95&lt;/td&gt;
-&lt;td&gt;9.25&lt;/td&gt;
-&lt;td&gt;15.41&lt;/td&gt;
-&lt;td&gt;20.09&lt;/td&gt;
-&lt;td&gt;23.65&lt;/td&gt;
-&lt;td&gt;26.36&lt;/td&gt;
-&lt;td&gt;28.42&lt;/td&gt;
-&lt;td&gt;29.98&lt;/td&gt;
-&lt;td&gt;31.17&lt;/td&gt;
-&lt;td&gt;32.08&lt;/td&gt;
-&lt;td&gt;32.77&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
+	&lt;thead&gt;
+			&lt;tr&gt;
+					&lt;th&gt;$U_{AK}(V)$&lt;/th&gt;
+					&lt;th&gt;1&lt;/th&gt;
+					&lt;th&gt;5&lt;/th&gt;
+					&lt;th&gt;10&lt;/th&gt;
+					&lt;th&gt;15&lt;/th&gt;
+					&lt;th&gt;20&lt;/th&gt;
+					&lt;th&gt;25&lt;/th&gt;
+					&lt;th&gt;30&lt;/th&gt;
+					&lt;th&gt;35&lt;/th&gt;
+					&lt;th&gt;40&lt;/th&gt;
+					&lt;th&gt;45&lt;/th&gt;
+					&lt;th&gt;50&lt;/th&gt;
+			&lt;/tr&gt;
+	&lt;/thead&gt;
+	&lt;tbody&gt;
+			&lt;tr&gt;
+					&lt;td&gt;$I(\times 10^{-9}A)$&lt;/td&gt;
+					&lt;td&gt;2.95&lt;/td&gt;
+					&lt;td&gt;9.25&lt;/td&gt;
+					&lt;td&gt;15.41&lt;/td&gt;
+					&lt;td&gt;20.09&lt;/td&gt;
+					&lt;td&gt;23.65&lt;/td&gt;
+					&lt;td&gt;26.36&lt;/td&gt;
+					&lt;td&gt;28.42&lt;/td&gt;
+					&lt;td&gt;29.98&lt;/td&gt;
+					&lt;td&gt;31.17&lt;/td&gt;
+					&lt;td&gt;32.08&lt;/td&gt;
+					&lt;td&gt;32.77&lt;/td&gt;
+			&lt;/tr&gt;
+	&lt;/tbody&gt;
 &lt;/table&gt;
 &lt;h2 id=&#34;实验结果分析&#34;&gt;实验结果分析&lt;/h2&gt;
 &lt;ol&gt;
@@ -846,7 +984,7 @@ ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接
 方法如下:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;N1盒子插上U盘, 接上显示器, 插上键盘后插电开机, 看见以下画面之后分行输入&lt;/p&gt;
-&lt;pre&gt;&lt;code&gt;cd /root
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;cd /root
 ./inst-to-emmc.sh
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;&lt;img src=&#34;https://pic.downk.cc/item/5e8d55ad504f4bcb04e78743.png&#34; alt=&#34;&#34;&gt;&lt;br&gt;
 等待刷机完成即可进行下一步&lt;/p&gt;
@@ -951,20 +1089,6 @@ ClientAliveCountMAx 3 #若客戶端3s內無回應則會斷開連接
 &lt;h2 id=&#34;转载说明&#34;&gt;转载说明&lt;/h2&gt;
 &lt;p&gt;此文为Zisen原创, 虽有许多参考之处但都获得了原文作者的许可, 如需转载请注明出处和作者, 本文地址为https://github.com/zisen123/N1-box-bypass-router-tutorial/blob/master/N1-box-bypass-router-tutorial.md&lt;/p&gt;
 - https://zisen123.github.io/posts/n1%E7%9B%92%E5%AD%90%E6%97%81%E8%B7%AF%E7%94%B1%E6%95%99%E7%A8%8B/ - This is a customized copyright.</description>
-        </item>
-    
-    
-    
-        <item>
-        <title>Spark</title>
-        <link>https://zisen123.github.io/posts/spark/</link>
-        <pubDate>Tue, 28 Apr 2020 18:32:01 +0800</pubDate>
-        
-        <guid>https://zisen123.github.io/posts/spark/</guid>
-        <description>Spark https://zisen123.github.io/posts/spark/ -&lt;p&gt;Spark means flames, beating heart, interesting soul, and the person you love.&lt;/p&gt;
-&lt;p&gt;Étincelle signifie flammes, cœur frétillant, âme intéressante et la personne que vous aimez.&lt;/p&gt;
-&lt;p&gt;火花は炎、心を打つこと、面白い魂、そしてあなたが愛する人を意味します。&lt;/p&gt;
-- https://zisen123.github.io/posts/spark/ - This is a customized copyright.</description>
         </item>
     
     

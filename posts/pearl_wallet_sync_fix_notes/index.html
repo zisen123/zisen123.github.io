@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html><head>
+<title>Pearl Wallet 同步故障排查与修复笔记</title>
+
+<meta charset="utf-8">
+<meta name="X-UA-Compatible" content="IE=edge">
+<meta name="google-site-verification" content="">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport">
+<meta content="telephone=no" name="format-detection">
+<meta name="description" content="详细记录了解决 Pearl Wallet (PRL) 桌面钱包卡在高度 1、无法连接节点进行同步，并最终成功在本地恢复显示钱包余额的完整折腾过程。">
+<meta name="renderer" content="webkit">
+<meta name="theme-color" content="#ffffff">
+
+
+
+
+<script src="/vendor/js/jquery.min.js" ></script>
+<script src="/vendor/js/popper.min.js" ></script>
+<script src="/vendor/js/bootstrap.min.js" ></script>
+<script src="/vendor/js/smooth-scroll.polyfills.min.js" ></script>
+<link type="text/css" rel="stylesheet" href="/vendor/css/bootstrap.min.css">
+<script src="/vendor/js/vue.min.js" ></script>
+
+
+<link rel="icon" href="https://pic.downk.cc/item/5ea95577c2a9a83be53caa55.png">
+
+
+
+
+<link rel="stylesheet" href="https://zisen123.github.io/scss/journal.min.7b955631a82546d0141c189774ddccd95e674404ce134994d51f250cbf3eb5fa.css" integrity="sha256-e5VWMaglRtAUHBiXdN3M2V5nRATOE0mU1R8lDL8&#43;tfo=" media="screen">
+
+
+
+<link rel="stylesheet" href="https://zisen123.github.io/scss/dark-mode.min.0f9b568525dc2b5e89835cb5bdd60f6346d5dd09f9cac1cd28a61e41970ad627.css" integrity="sha256-D5tWhSXcK16Jg1y1vdYPY0bV3Qn5ysHNKKYeQZcK1ic=" media="screen">
+
+
+<script src="https://zisen123.github.io//js/loadCSS.js"></script>
+<script>
+  loadCSS("https://fonts.googleapis.com/css?family=Lora|Montserrat|Fira+Mono|Noto+Serif+SC|Material+Icons");
+</script>
+
+<script src="https://zisen123.github.io//js/table.js"></script>
+
+
+
+
+<script src="https://zisen123.github.io//js/toc.js"></script>
+
+
+
+
+
+<script type="text/javascript">
+$(
+  (function(d, s) {
+      var j, e = d.getElementsByTagName(s)[0];
+
+      if (typeof LivereTower === 'function') { return; }
+
+      j = d.createElement(s);
+      j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+      j.async = true;
+
+      e.parentNode.insertBefore(j, e);
+  })(document, 'script'));
+</script>
+
+
+
+
+</head>
+<body>
+    	<div id="app"><div ref="sideContainer" class="side-container">
+    
+    <a class="a-block nav-head false" href="https://zisen123.github.io/">
+    
+        <div class="nav-title">
+            Spark
+        </div>
+        
+        <div class="nav-subtitle">
+            Themed by Diary.
+        </div>
+        
+    </a>
+
+    <div class="nav-link-list">
+        
+        
+            
+            
+            
+                
+            
+            
+            
+            <a class="a-block nav-link-item active" href="/posts">
+                Archive
+            </a>
+            
+        
+            
+            
+            
+            
+            
+            <a class="a-block nav-link-item false" href="/categories">
+                Categories
+            </a>
+            
+        
+            
+            
+            
+            
+            
+            <a class="a-block nav-link-item false" href="/tags">
+                Tags
+            </a>
+            
+        
+            
+            
+            
+            
+            
+            <a class="a-block nav-link-item false" href="/index.xml">
+                RSS Feed
+            </a>
+            
+        
+    </div>
+
+    
+
+    <div class="nav-footer">
+        
+Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://amazingrise.net">Rise</a>
+<br>
+Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>
+<br>
+
+&copy;
+	
+	This is a customized copyright.
+	
+    </div>
+    
+</div><div ref="extraContainer" class="extra-container">
+    
+    
+    <div class="toc animated-visibility" :class="{ invisible: scrollY <= 140 }">
+
+
+	<div class="toc-content">
+	
+		
+		
+		
+		<center>- CATALOG -</center>
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#1-%e9%97%ae%e9%a2%98%e8%83%8c%e6%99%af%e4%b8%8e%e6%95%85%e9%9a%9c%e8%af%8a%e6%96%ad" v-on:click="closeDrawer" id="1-问题背景与故障诊断-nav">
+										 1. 问题背景与故障诊断
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e7%97%87%e7%8a%b6" v-on:click="closeDrawer" id="症状-nav">
+										 症状
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e8%a7%a3%e5%86%b3%e6%80%9d%e8%b7%af" v-on:click="closeDrawer" id="解决思路-nav">
+										 解决思路
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#2-%e6%8a%98%e8%85%be%e5%85%a8%e8%bf%87%e7%a8%8b%e8%af%a6%e7%bb%86%e8%ae%b0%e5%bd%95" v-on:click="closeDrawer" id="2-折腾全过程详细记录-nav">
+										 2. 折腾全过程详细记录
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e7%ac%ac%e4%b8%80%e9%98%b6%e6%ae%b5vps-%e7%ab%af%e7%bc%96%e8%af%91%e6%9c%80%e6%96%b0-oyster-%e9%92%b1%e5%8c%85" v-on:click="closeDrawer" id="第一阶段vps-端编译最新-oyster-钱包-nav">
+										 第一阶段：VPS 端编译最新 Oyster 钱包
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#3-%e7%ac%ac%e4%ba%8c%e9%98%b6%e6%ae%b5vps-%e6%8c%82%e8%bd%bd%e5%90%8c%e6%ad%a5%e4%b8%8e%e7%8a%b6%e6%80%81%e7%9b%91%e6%8e%a7" v-on:click="closeDrawer" id="3-第二阶段vps-挂载同步与状态监控-nav">
+										 3. 第二阶段：VPS 挂载同步与状态监控
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#4-%e7%ac%ac%e4%b8%89%e9%98%b6%e6%ae%b5%e6%9c%ac%e5%9c%b0%e6%95%b0%e6%8d%ae%e7%81%8c%e5%85%a5%e4%b8%8e-clash-verge-%e7%9b%b4%e8%bf%9e%e9%85%8d%e7%bd%ae" v-on:click="closeDrawer" id="4-第三阶段本地数据灌入与-clash-verge-直连配置-nav">
+										 4. 第三阶段：本地数据灌入与 Clash Verge 直连配置
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#5-%e6%88%90%e6%9e%9c%e9%aa%8c%e8%af%81%e4%b8%8e-vps-%e6%97%a0%e7%97%95%e6%b8%85%e7%90%86" v-on:click="closeDrawer" id="5-成果验证与-vps-无痕清理-nav">
+										 5. 成果验证与 VPS 无痕清理
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#6-%e7%bb%8f%e9%aa%8c%e4%b8%8e%e5%bb%ba%e8%ae%ae" v-on:click="closeDrawer" id="6-经验与建议-nav">
+										 6. 经验与建议
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+	</div>
+
+</div>
+    
+    <div class="pagination">
+        <a id="globalBackToTop" class="pagination-action animated-visibility" href="#top" :class="{ invisible: scrollY == 0 }">
+            <i class="material-icons pagination-action-icon">
+                keyboard_arrow_up
+            </i>
+        </a>
+        
+        <a class="pagination-action" v-on:click="toggleDarkMode">
+            <i class="material-icons pagination-action-icon" v-if="isDarkMode">
+                brightness_4
+            </i>
+            <i class="material-icons pagination-action-icon" v-else="isDarkMode">
+                brightness_7
+            </i>
+        </a>
+        
+        
+    </div>
+</div>
+<div class="single-column-drawer-container" ref="drawer"
+     v-bind:class="{ 'single-column-drawer-container-active': isDrawerOpen }">
+    <div class="drawer-content">
+        <div class="drawer-menu">
+            
+            
+            
+                
+                
+                
+                    
+                
+                
+                
+                <a class="a-block drawer-menu-item active" href="/posts">
+                    Archive
+                </a>
+                
+            
+                
+                
+                
+                
+                
+                <a class="a-block drawer-menu-item false" href="/categories">
+                    Categories
+                </a>
+                
+            
+                
+                
+                
+                
+                
+                <a class="a-block drawer-menu-item false" href="/tags">
+                    Tags
+                </a>
+                
+            
+                
+                
+                
+                
+                
+                <a class="a-block drawer-menu-item false" href="/index.xml">
+                    RSS Feed
+                </a>
+                
+            
+            
+            <div class="toc">
+
+
+	<div class="toc-content">
+	
+		
+		
+		
+		<center>- CATALOG -</center>
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#1-%e9%97%ae%e9%a2%98%e8%83%8c%e6%99%af%e4%b8%8e%e6%95%85%e9%9a%9c%e8%af%8a%e6%96%ad" v-on:click="closeDrawer" id="1-问题背景与故障诊断-nav">
+										 1. 问题背景与故障诊断
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e7%97%87%e7%8a%b6" v-on:click="closeDrawer" id="症状-nav">
+										 症状
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e8%a7%a3%e5%86%b3%e6%80%9d%e8%b7%af" v-on:click="closeDrawer" id="解决思路-nav">
+										 解决思路
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#2-%e6%8a%98%e8%85%be%e5%85%a8%e8%bf%87%e7%a8%8b%e8%af%a6%e7%bb%86%e8%ae%b0%e5%bd%95" v-on:click="closeDrawer" id="2-折腾全过程详细记录-nav">
+										 2. 折腾全过程详细记录
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#%e7%ac%ac%e4%b8%80%e9%98%b6%e6%ae%b5vps-%e7%ab%af%e7%bc%96%e8%af%91%e6%9c%80%e6%96%b0-oyster-%e9%92%b1%e5%8c%85" v-on:click="closeDrawer" id="第一阶段vps-端编译最新-oyster-钱包-nav">
+										 第一阶段：VPS 端编译最新 Oyster 钱包
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#3-%e7%ac%ac%e4%ba%8c%e9%98%b6%e6%ae%b5vps-%e6%8c%82%e8%bd%bd%e5%90%8c%e6%ad%a5%e4%b8%8e%e7%8a%b6%e6%80%81%e7%9b%91%e6%8e%a7" v-on:click="closeDrawer" id="3-第二阶段vps-挂载同步与状态监控-nav">
+										 3. 第二阶段：VPS 挂载同步与状态监控
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#4-%e7%ac%ac%e4%b8%89%e9%98%b6%e6%ae%b5%e6%9c%ac%e5%9c%b0%e6%95%b0%e6%8d%ae%e7%81%8c%e5%85%a5%e4%b8%8e-clash-verge-%e7%9b%b4%e8%bf%9e%e9%85%8d%e7%bd%ae" v-on:click="closeDrawer" id="4-第三阶段本地数据灌入与-clash-verge-直连配置-nav">
+										 4. 第三阶段：本地数据灌入与 Clash Verge 直连配置
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#5-%e6%88%90%e6%9e%9c%e9%aa%8c%e8%af%81%e4%b8%8e-vps-%e6%97%a0%e7%97%95%e6%b8%85%e7%90%86" v-on:click="closeDrawer" id="5-成果验证与-vps-无痕清理-nav">
+										 5. 成果验证与 VPS 无痕清理
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+				
+				
+					
+						
+						
+							<ul>
+						
+							<ul>
+						
+						
+								<li>
+				 					<a href="#6-%e7%bb%8f%e9%aa%8c%e4%b8%8e%e5%bb%ba%e8%ae%ae" v-on:click="closeDrawer" id="6-经验与建议-nav">
+										 6. 经验与建议
+									</a>
+								</li>
+						
+							</ul>
+						
+							</ul>
+						
+					
+				
+			
+	</div>
+
+</div>
+            
+        </div>
+    </div>
+</div>
+<transition name="fade">
+    <div v-bind:class="{ 'single-column-drawer-mask': mounted }" v-if="isDrawerOpen" v-on:click="toggleDrawer"></div>
+</transition>
+<nav ref="navBar" class="navbar sticky-top navbar-light single-column-nav-container">
+    <div ref="navBackground" class="nav-background"></div>
+    <div class="container container-narrow nav-content">
+        <button id="nav_dropdown_btn" class="nav-dropdown-toggle" type="button" v-on:click="toggleDrawer">
+            <i class="material-icons">
+                menu
+            </i>
+        </button>
+        <a ref="navTitle" class="navbar-brand" href="https://zisen123.github.io/">
+            Spark
+        </a>
+        
+        <button type="button" class="nav-darkmode-toggle" v-on:click="toggleDarkMode">
+            <i class="material-icons" v-if="isDarkMode">
+                brightness_4
+            </i>
+            <i class="material-icons" v-else="isDarkMode">
+                brightness_7
+            </i>
+        </button>
+        
+    </div>
+</nav>
+<div class="single-column-header-container" ref="pageHead"
+     v-bind:style="{ transform: 'translateZ(0px) translateY('+.3*scrollY+'px)', opacity: 1-navOpacity }">
+    <a href="https://zisen123.github.io/">
+        <div class="single-column-header-title">Spark</div>
+        
+        <div class="single-column-header-subtitle">Themed by Diary.</div>
+        
+
+    </a>
+</div>
+            <div id="content">
+<div ref="streamContainer" class="stream-container">
+    <div class="post-list-container post-list-container-shadow">
+        <div class="post">
+            
+            
+            
+
+            <div class="post-head-wrapper-text-only"
+                 style="background-image: url('https://zisen123.github.io/')">
+                <div class="post-title">
+                    Pearl Wallet 同步故障排查与修复笔记
+                    
+                    <div class="post-subtitle">
+                        详细记录了解决 Pearl Wallet (PRL) 桌面钱包卡在高度 1、无法连接节点进行同步，并最终成功在本地恢复显示钱包余额的完整折腾过程。
+                    </div>
+                    
+                    <div class="post-meta">
+                        
+                        <time itemprop="datePublished">
+                            2026-05-30 16:12
+                        </time>
+                        
+
+                        
+
+                        
+                    </div>
+                </div>
+            </div>
+            
+            <div class="post-body-wrapper">
+                <div class="post-body">
+                    <p>本笔记详细记录了解决 Pearl Wallet (PRL) 桌面钱包卡在高度 1、无法连接节点进行同步，并最终成功在本地恢复显示钱包余额的完整折腾过程。</p>
+<hr>
+<h2 id="1-问题背景与故障诊断">1. 问题背景与故障诊断</h2>
+<h3 id="症状">症状</h3>
+<ul>
+<li><strong>现象</strong>：Pearl Wallet 桌面钱包 (v1.0.0) 启动后，高度一直卡在 <code>1/1</code>（或 <code>0</code>），提示 <code>Lost peer</code> 或 <code>EOF</code>。无论等待多久，都无法同步区块，导致钱包余额无法显示（处于未同步的假空状态）。</li>
+<li><strong>原因排查</strong>：
+<ol>
+<li><strong>GFW 干扰</strong>：国内直连节点可能存在丢包。</li>
+<li><strong>握手 Bug（核心原因）</strong>：官方 <code>v1.0.0</code> 版本的客户端在向主网 DNS 种子节点进行网络握手时，错误地为不支持过滤的主网种子节点请求了紧凑过滤标志 (<code>HasFiltering</code>)，导致主网远程节点在收到握手后<strong>瞬间主动断开连接</strong> (<code>Lost peer</code>)。</li>
+</ol>
+</li>
+</ul>
+<h3 id="解决思路">解决思路</h3>
+<ol>
+<li>在海外 VPS 上，拉取官方最新的修复源码（已屏蔽 <code>HasFiltering</code> bug），编译最新的运行程序。</li>
+<li>用新程序在 VPS 上连接主网节点，快速同步区块头和 Neutrino 过滤器数据库。</li>
+<li>从 VPS 导出一份包含“已连通健康节点”的 <code>peers.json</code> 列表。</li>
+<li>将同步好的区块头缓存、过滤器数据库和节点列表打包下载到本地钱包目录。</li>
+<li>通过 Clash Verge 配置路由直连规则，保障钱包连接节点时不受代理网络波动干扰。</li>
+<li>确认本地钱包正常显示余额后，完全清理 VPS 上的临时编译环境。</li>
+</ol>
+<hr>
+<h2 id="2-折腾全过程详细记录">2. 折腾全过程详细记录</h2>
+<h3 id="第一阶段vps-端编译最新-oyster-钱包">第一阶段：VPS 端编译最新 Oyster 钱包</h3>
+<ol>
+<li><strong>重置环境</strong>：VPS 重置为 Ubuntu 22.04 LTS。</li>
+<li><strong>安装编译依赖</strong>：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>apt-get update
+</span></span><span style="display:flex;"><span>apt-get install -y git build-essential make golang rustc cargo curl
+</span></span></code></pre></div></li>
+<li><strong>获取源码</strong>：拉取最新的 <code>pearl</code> 官方单体仓库，切换至主分支。</li>
+<li><strong>本地编译</strong>：
+<ul>
+<li>编译 ZK 零知识证明电路缓存、FFI 动态库以及 XMSS 签名 C 语言绑定。</li>
+<li>成功构建原生 fixed <code>oyster</code> 钱包命令行程序。</li>
+</ul>
+<blockquote>
+<p>[!NOTE]
+编译 Rust ZK 电路时需要较大的内存。1G 物理内存的 VPS 在启用 1G Swap 虚拟内存后顺利完成了编译，未发生 OOM 崩溃。</p>
+</blockquote>
+</li>
+</ol>
+<hr>
+<h2 id="3-第二阶段vps-挂载同步与状态监控">3. 第二阶段：VPS 挂载同步与状态监控</h2>
+<ol>
+<li><strong>指定正常节点强制同步</strong>：
+为避免受坏节点干扰，启动新编译的 <code>oyster</code> 并显式添加多个已知可靠的海外主网节点 IP：
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>nohup ~/pearl-sync/oyster --usespv -u test -P test <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --addpeer 104.199.167.233:44108 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --addpeer 34.40.50.215:44108 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --addpeer 35.223.185.30:44108 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --addpeer 35.196.37.244:44108 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  --addpeer 34.83.190.251:44108 <span style="color:#ae81ff">\
+</span></span></span><span style="display:flex;"><span>  &gt; ~/pearl-sync/oyster.log 2&gt;&amp;<span style="color:#ae81ff">1</span> &amp;
+</span></span></code></pre></div></li>
+<li><strong>编写监控脚本</strong>：
+通过 Python 监控脚本自动计算同步速度 (blocks/s) 和预计剩余时间 (ETA)。同步在约 15~30 blocks/s 的速度下运行，共计约 25 分钟同步完 6.4 万个区块。</li>
+<li><strong>自动打包与停止</strong>：
+高度追上主网 Tip 时，脚本自动停止 VPS 上的 <code>oyster</code> 进程，并打包核心数据：
+<ul>
+<li><code>block_headers.bin</code> (区块头数据)</li>
+<li><code>neutrino.db</code> (BoltDB 过滤器数据库)</li>
+<li><code>reg_filter_headers.bin</code> (过滤器头文件)</li>
+<li><code>peers.json</code> (节点拓扑信息)</li>
+<li><strong>数据包名称</strong>：<code>sync_cache.tar.gz</code> (约 12MB)</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="4-第三阶段本地数据灌入与-clash-verge-直连配置">4. 第三阶段：本地数据灌入与 Clash Verge 直连配置</h2>
+<ol>
+<li>
+<p><strong>数据灌入</strong>：
+数据包从 VPS 下载到本地 PC 路径：<code>C:\Users\&lt;YourUsername&gt;\.pearl-wallet\wallet-data\&lt;YourWalletName&gt;\mainnet</code> 并解压。</p>
+<ul>
+<li>⚠️ <strong>特别注意</strong>：本地 <code>wallet.db</code>（钱包密钥数据库）保持完全不动，安全无损。</li>
+<li><strong><code>peers.json</code> 替换的作用</strong>：本地客户端直接获得了 VPS 筛选出的几千个健康节点 IP，启动时将不再尝试走报错的官方种子寻路，从而在本地绕过了官方握手 Bug，可实现永久增量自同步。</li>
+</ul>
+</li>
+<li>
+<p><strong>Clash Verge 直连规则优化</strong>：
+为防止代理内核将主网 P2P 流量误判拦截或通过长链节点转发导致握手失败，在 Clash 配置文件 <code>rules:</code> 的最顶部加入以下最高优先级规则：</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-text-size-adjust:none;"><code class="language-yaml" data-lang="yaml"><span style="display:flex;"><span><span style="color:#f92672">rules</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 1. 进程规则直连（Verge/Meta 内核支持）</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#e6db74">&#39;PROCESS-NAME,oyster-windows-x64.exe,DIRECT&#39;</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#e6db74">&#39;PROCESS-NAME,Pearl Wallet.exe,DIRECT&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 2. 官方 DNS 种子域名直连</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#e6db74">&#39;DOMAIN-SUFFIX,pearlresearch.ai,DIRECT&#39;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># 3. 我们同步使用的多个高质量稳定节点 IP 直连</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#e6db74">&#39;IP-CIDR,104.199.167.233/32,DIRECT,no-resolve&#39;</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#e6db74">&#39;IP-CIDR,34.40.50.215/32,DIRECT,no-resolve&#39;</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#e6db74">&#39;IP-CIDR,35.223.185.30/32,DIRECT,no-resolve&#39;</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#e6db74">&#39;IP-CIDR,35.196.37.244/32,DIRECT,no-resolve&#39;</span>
+</span></span><span style="display:flex;"><span>    - <span style="color:#e6db74">&#39;IP-CIDR,34.83.190.251/32,DIRECT,no-resolve&#39;</span>
+</span></span></code></pre></div></li>
+</ol>
+<hr>
+<h2 id="5-成果验证与-vps-无痕清理">5. 成果验证与 VPS 无痕清理</h2>
+<ol>
+<li>
+<p><strong>本地成果</strong>：
+打开本地 Pearl Wallet，钱包加载后仅用几秒钟便同步完了最新的新产生区块，并顺利进入区块历史交易扫描，成功在钱包界面读出您的真实总余额：</p>
+<ul>
+<li><strong>显示余额</strong>：<strong><code>&lt;YOUR_BALANCE&gt; PRL</code></strong> 💎</li>
+</ul>
+</li>
+<li>
+<p><strong>VPS 环境彻底清理</strong>：
+确认本地钱包恢复后，连接 VPS 运行清理脚本：</p>
+<ul>
+<li>停止任何残留进程。</li>
+<li>彻底删除整个临时工作区（<code>~/pearl-src</code>、<code>~/pearl-sync</code>、<code>~/.cargo</code>、<code>~/.rustup</code>、<code>~/.oyster</code>、<code>~/.go</code>）。</li>
+<li>卸载所安装的开发语言环境（<code>go</code>、<code>rust</code>、<code>gcc/g++</code>、<code>make</code>、<code>build-essential</code>）。</li>
+<li>释放了共计数百兆 of 磁盘空间，并将内存占用恢复至 0，VPS 重回零残留安全状态。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="6-经验与建议">6. 经验与建议</h2>
+<ul>
+<li><strong>不要删除本地 <code>wallet.db</code></strong>：钱包同步不上去只是区块缓存和网络同步协议的问题，私钥依然安全地存在于本地 <code>wallet.db</code> 中。遇到此类情况切记不要重装或删除数据库。</li>
+<li><strong>利用 P2P peers 直连绕过 Bug</strong>：当区块链软件客户端源码中写死的主种子发生握手 Bug 时，手动给软件注入一份已知可靠的 <code>peers.json</code> 即可直接跳过主种子检索，是解决 P2P 客户端连不上网的通用解法。</li>
+<li><strong>使用 Merge 模板保存 Clash Verge 规则</strong>：在 Verge 中使用 Merge 模板注入直连规则，可以避免未来订阅更新时把手动改写的 rules 覆盖掉。</li>
+</ul>
+
+                    
+                    <HR width="100%" id="EOF">
+                    <p style="color:#777;">Last modified on 2026-05-30</p>
+                    
+                </div>
+            </div>
+            
+            
+            <nav class="post-pagination">
+
+                
+                <a class="newer-posts">
+                    Next<br>No newer posts.
+                </a>
+                
+                
+                
+                <a class="older-posts" href="https://zisen123.github.io/posts/minecraft-classification/">
+                    Previous<br>Minecraft Classification
+                </a>
+                
+            </nav>
+            <div class="post-comment-wrapper">
+                
+
+
+
+
+
+
+<div id="lv-container" data-id="city" data-uid=MTAyMC80OTkwMi8yNjM5Mw&#61;&#61;>
+    <noscript>Please activate JavaScript to use Livere Comment.</noscript>
+</div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+            </div>
+<div id="single-column-footer">
+Hugo Theme <a href="https://github.com/amazingrise/hugo-theme-diary">Diary</a> by <a href="https://amazingrise.net">Rise</a>
+<br>
+Ported from <a href="https://mak1t0.cc/" target="_blank" rel="noreferrer noopener">Makito</a>'s <a href="https://github.com/SumiMakito/hexo-theme-journal/" target="_blank" rel="noreferrer noopener">Journal.</a> <br>
+<br>
+
+&copy;
+	
+	This is a customized copyright.
+	</div>
+    	</div>
+    <script src="https://zisen123.github.io//js/journal.js"></script>
+    </body>
+</html>
